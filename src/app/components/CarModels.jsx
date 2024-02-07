@@ -24,28 +24,30 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
 }));
 
+const CarModels = () => {
 
-const CarList = () => {
     const { openSnackbar } = useSnackbar();
 
+
+
     // ----------------------------------------------Fetch Car Brands Starts-----------------------------------------------------
-    const [carBrandsData, setCarBrandsData] = useState([])
+    const [carModelsData, setCarModelsData] = useState([])
 
     useEffect(() => {
         let unmounted = false;
         if (!unmounted) {
-            fetchCarBrandsData()
+            fetchCarModelsData()
         }
 
         return () => { unmounted = true };
     }, [])
 
-    const fetchCarBrandsData = useCallback(
+    const fetchCarModelsData = useCallback(
         () => {
-            axios.get('/api/fetch-car-lists')
+            axios.get('/api/fetch-car-models')
                 .then((res) => {
                     if (res.data.status === 'success') {
-                        setCarBrandsData(res.data.carLists)
+                        setCarModelsData(res.data.modelName)
                     }
                 })
                 .then(err => {
@@ -59,7 +61,7 @@ const CarList = () => {
 
     const [page, setPage] = useState(1);
     const rowsPerPage = 10;
-    const totalRows = carBrandsData.length;
+    const totalRows = carModelsData.length;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
@@ -68,18 +70,18 @@ const CarList = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredRows = carBrandsData.filter((e) =>
-        e.car_model.model_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredRows = carModelsData.filter((e) =>
+        e.model_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
     // ----------------------------------------------Change status section Starts-----------------------------------------------------
     const handleSwitchChange = (id) => {
-        axios.post(`/api/update-car-brand-status?car_brand_id=${id}`)
+        axios.post(`/api/update-car-model-status?car_model_id=${id}`)
             .then(res => {
                 if (res.data.status === 'success') {
                     openSnackbar(res.data.message, 'success');
-                    fetchCarBrandsData()
+                    fetchCarModelsData()
                 }
             })
             .catch(err => {
@@ -92,7 +94,7 @@ const CarList = () => {
     const deleteCategory = (data) => {
         Swal.fire({
             title: "Delete",
-            text: `Do you want to Delete this ${data.brand_name}?`,
+            text: `Do you want to Delete this ${data.model_name}?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#CFAA4C",
@@ -101,14 +103,16 @@ const CarList = () => {
             confirmButtonText: "Yes! Delete it"
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.post(`/api/delete-car-brand?car_brand_id=${data.id}`)
+                axios.post(`/api/delete-car-model?car_model_id=${data.id}`)
                     .then(res => {
                         if (res.data.code == 200) {
-                            fetchCarBrandsData()
+                            fetchCarModelsData()
                             openSnackbar(res.data.message, 'success');
                             if (page > 1 && paginatedRows.length === 1) {
                                 setPage(page - 1);
                             }
+                        }else{
+                            openSnackbar(res.data.message, 'error');
                         }
                     })
                     .catch(err => {
@@ -154,34 +158,38 @@ const CarList = () => {
         setShowImage(null)
     };
 
-    const [getCarBrandName, setGetBrandname] = useState({
-        brand_name: ''
+    const [getCarModelName, setGetModelname] = useState({
+        model_name: '',
+        start_year: '',
+        end_year: ''
     })
 
     const getData = (e) => {
         const { value, name } = e.target;
 
-        setGetBrandname(() => {
+        setGetModelname(() => {
             return {
-                ...getCarBrandName,
+                ...getCarModelName,
                 [name]: value
             }
         })
     }
 
-    const handleAddCarBrand = () => {
+    const handleAddCarModel = () => {
         const formData = new FormData();
-        formData.append('car_brand_name', getCarBrandName.brand_name);
+        formData.append('model_name', getCarModelName.model_name);
+        formData.append('start_year', getCarModelName.start_year);
+        formData.append('end_year', getCarModelName.end_year);
         formData.append('image', image);
 
-        axios.post('/api/add-car-brands', formData, {
+        axios.post('/api/add-car-models', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         })
             .then(res => {
                 if (res.data.status === 'success') {
-                    fetchCarBrandsData()
+                    fetchCarModelsData()
                     openSnackbar(res.data.message, 'success');
                     handleClose()
 
@@ -200,41 +208,43 @@ const CarList = () => {
 
     // ------------------------------------------------------Edit car brands section--------------------------------------------------
 
-    const [getCarBrandNameEdit , setGetCarBrandNameEdit] = useState({
-        edit_brand_name:''
+    const [getCarModelNameEdit, setGetCarModelNameEdit] = useState({
+        edit_model_name: '',
+        edit_start_year:'',
+        edit_end_year:''
     })
 
     const getEditData = (e) => {
         const { value, name } = e.target;
 
-        setGetCarBrandNameEdit(() => {
+        setGetCarModelNameEdit(() => {
             return {
-                ...getCarBrandNameEdit,
+                ...getCarModelNameEdit,
                 [name]: value
             }
         })
     }
 
-     // Image uploading section
-     const [imageEdit, setImageEdit] = useState(null);
-     const [showImageEdit, setShowImageEdit] = useState(null)
- 
-     const handleImageChangeEdit = (e) => {
-         const file = e.target.files[0];
-         if (file) {
-             const reader = new FileReader();
-             reader.onload = (e) => {
+    // Image uploading section
+    const [imageEdit, setImageEdit] = useState(null);
+    const [showImageEdit, setShowImageEdit] = useState(null)
+
+    const handleImageChangeEdit = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
                 setImageEdit(file);
                 setShowImageEdit(e.target.result)
-             };
-             reader.readAsDataURL(file);
-         }
-     };
- 
-     const handleRemoveImageEdit = () => {
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImageEdit = () => {
         setImageEdit(null);
         setShowImageEdit(null)
-     };
+    };
 
     const [open1, setOpen1] = React.useState(false);
 
@@ -254,12 +264,14 @@ const CarList = () => {
 
     const handleEditCarBrand = () => {
         const formData = new FormData();
-        formData.append('car_brand_id', editData.id)
-        formData.append('car_brand_name', getCarBrandNameEdit.edit_brand_name || editData.brand_name);
+        formData.append('car_model_id', editData.id)
+        formData.append('model_name', getCarModelNameEdit.edit_model_name || editData.model_name);
+        formData.append('start_year', getCarModelNameEdit.edit_start_year || editData.start_year);
+        formData.append('end_year', getCarModelNameEdit.edit_end_year || editData.end_year);
         if (imageEdit) {
             formData.append('image', imageEdit);
         }
-        axios.post(`/api/update-car-brands`, formData, {
+        axios.post(`/api/update-car-models`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -267,7 +279,7 @@ const CarList = () => {
             .then(res => {
                 console.log(res)
                 if (res.data.status === 'success') {
-                    fetchCarBrandsData()
+                    fetchCarModelsData()
                     openSnackbar(res.data.message, 'success');
                     setImageEdit(null)
                     setShowImageEdit(null)
@@ -285,19 +297,19 @@ const CarList = () => {
     // ------------------------------------------------------Edit car brands section--------------------------------------------------
 
     return (
+
         <div className='px-[20px]  container mx-auto overflow-y-scroll'>
             <div className=' py-[10px] flex flex-col space-y-5'>
                 <div className='flex flex-col space-y-1'>
-                    <span className='text-[30px] text-[#101828] font-[500]'>Car List</span>
+                    <span className='text-[30px] text-[#101828] font-[500]'>Car Models</span>
                     <span className='text-[#667085] font-[400] text-[16px]'>Simplify Management, Streamline Operations Unleash Efficiency in Admin Applications.</span>
                 </div>
-
 
                 <div className='flex flex-col space-y-5  border border-[#EAECF0] rounded-[8px] p-[10px]'>
                     <div className='flex items-center px-3 justify-between'>
                         <div className='flex space-x-2 items-center'>
-                            <span className='text-[18px] font-[500] text-[#101828]'>Car List</span>
-                            <span className='px-[10px] py-[5px] bg-[#FCF8EE] rounded-[16px] text-[12px] text-[#A1853C]'>{carBrandsData.length} Car List</span>
+                            <span className='text-[18px] font-[500] text-[#101828]'>Car Models</span>
+                            <span className='px-[10px] py-[5px] bg-[#FCF8EE] rounded-[16px] text-[12px] text-[#A1853C]'>{carModelsData.length} Models</span>
                         </div>
                         <div className='flex items-center space-x-3 inputText w-[50%]'>
                             <IoSearch className='text-[20px]' />
@@ -312,7 +324,7 @@ const CarList = () => {
 
                         <div className='flex items-center gap-[5px] px-[18px] py-[10px] bg-[#cfaa4c] rounded-[8px] cursor-pointer hover:opacity-70' onClick={handleClickOpen}>
                             <MdAdd className='text-[#fff] text-[16px] font-[600]' />
-                            <span className=' text-[16px] text-[#fff] font-[600]'>Link Car Brand & Model</span>
+                            <span className=' text-[16px] text-[#fff] font-[600]'>Add New Car Model</span>
                         </div>
                     </div>
 
@@ -324,8 +336,10 @@ const CarList = () => {
                                     <TableRow className='!bg-[#F9FAFB]'>
                                         {/* Define your table header columns */}
                                         <TableCell style={{ minWidth: 50 }}>SL no</TableCell>
-                                        <TableCell style={{ minWidth: 150 }}>Car Brand Image</TableCell>
-                                        <TableCell style={{ minWidth: 150 }}>Car Brand Name</TableCell>
+                                        <TableCell style={{ minWidth: 150 }}>Car Model Image</TableCell>
+                                        <TableCell style={{ minWidth: 150 }}>Car Model Name</TableCell>
+                                        <TableCell style={{ minWidth: 150 }}>Start Year</TableCell>
+                                        <TableCell style={{ minWidth: 150 }}>End Year</TableCell>
                                         <TableCell style={{ minWidth: 50 }}>Status</TableCell>
                                         <TableCell style={{ minWidth: 50 }}>Change Status</TableCell>
                                         <TableCell style={{ minWidth: 50 }}>Delete</TableCell>
@@ -341,7 +355,13 @@ const CarList = () => {
                                                     <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${row.image_url}`} width={50} height={40} alt={row.category_name} className='rounded-[8px]' />
                                                 </TableCell>
                                                 <TableCell>
-                                                    {row.brand_name}
+                                                    {row.model_name}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {row.start_year}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {row.end_year}
                                                 </TableCell>
                                                 <TableCell >
                                                     {row.status === 1 ?
@@ -404,7 +424,7 @@ const CarList = () => {
                     fullWidth
                 >
                     <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-                        Add New Car Brand
+                        Add New Car Model
                     </DialogTitle>
                     <IconButton
                         aria-label="close"
@@ -421,10 +441,21 @@ const CarList = () => {
                     <DialogContent dividers>
                         <div className='flex flex-col space-y-2'>
                             <span className='text-[#344054] text-[14px] font-[500]'>Car Brand Name</span>
-                            <input type='text' className='inputText' placeholder='Ex: BMW' name='brand_name' onChange={getData} />
+                            <input type='text' className='inputText' placeholder='Ex: BMW' name='model_name' onChange={getData} />
                         </div>
-                        <div className='flex flex-col space-y-2 py-5'>
-                            <span className='text-[#344054] text-[14px] font-[500]'>Choose Car Brand Image</span>
+                        <div className='flex  py-5 gap-[10px] items-center w-full'>
+                            <div className='flex flex-col w-full'>
+                                <span className='text-[#344054] text-[14px] font-[500]'>Start Year</span>
+                                <input type='text' className='inputText' placeholder='Ex: 2000' name='start_year' onChange={getData} />
+                            </div>
+                            <div className='flex flex-col w-full'>
+                                <span className='text-[#344054] text-[14px] font-[500]'>End Year</span>
+                                <input type='text' className='inputText' placeholder='Ex: 2005' name='end_year' onChange={getData} />
+                            </div>
+                        </div>
+
+                        <div className='flex flex-col w-full py-5'>
+                            <span className='text-[#344054] text-[14px] font-[500]'>Choose Car Model Image</span>
                             <input type='file' accept='image/*' onChange={handleImageChange} />
                         </div>
 
@@ -441,7 +472,7 @@ const CarList = () => {
                         <span onClick={handleClose} className='px-[18px] py-[10px] border border-[#D0D5DD] rounded-[8px] w-[50%] text-center cursor-pointer'>
                             Cancel
                         </span>
-                        <span autoFocus onClick={handleAddCarBrand} className='bg-[#CFAA4C] rounded-[8px] border-[#CFAA4C] w-[50%] py-[10px] text-center cursor-pointer text-[#fff] hover:opacity-70'>
+                        <span autoFocus onClick={handleAddCarModel} className='bg-[#CFAA4C] rounded-[8px] border-[#CFAA4C] w-[50%] py-[10px] text-center cursor-pointer text-[#fff] hover:opacity-70'>
                             Submit
                         </span>
                     </DialogActions>
@@ -456,7 +487,7 @@ const CarList = () => {
                     fullWidth
                 >
                     <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-                        Edit Car Brands
+                        Edit Car Model
                     </DialogTitle>
                     <IconButton
                         aria-label="close"
@@ -472,12 +503,23 @@ const CarList = () => {
                     </IconButton>
                     <DialogContent dividers>
                         <div className='flex flex-col space-y-2'>
-                            <span className='text-[#344054] text-[14px] font-[500]'>Car Brand Name</span>
-                            <input type='text' defaultValue={editData.brand_name} className='inputText' placeholder='Ex: Colour' name='edit_brand_name' onChange={getEditData}/>
+                            <span className='text-[#344054] text-[14px] font-[500]'>Car Model Name</span>
+                            <input type='text' defaultValue={editData.model_name} className='inputText' placeholder='Ex: Colour' name='edit_model_name' onChange={getEditData} />
+                        </div>
+
+                        <div className='flex  py-5 gap-[10px] items-center w-full'>
+                            <div className='flex flex-col w-full'>
+                                <span className='text-[#344054] text-[14px] font-[500]'>Start Year</span>
+                                <input type='text' className='inputText' defaultValue={editData.start_year} placeholder='Ex: 2000' name='edit_start_year' onChange={getEditData} />
+                            </div>
+                            <div className='flex flex-col w-full'>
+                                <span className='text-[#344054] text-[14px] font-[500]'>End Year</span>
+                                <input type='text' className='inputText' defaultValue={editData.end_year} placeholder='Ex: 2005' name='edit_end_year' onChange={getEditData} />
+                            </div>
                         </div>
 
                         <div className='flex flex-col space-y-2 py-5'>
-                            <span className='text-[#344054] text-[14px] font-[500]'>Choose Car Brand Image</span>
+                            <span className='text-[#344054] text-[14px] font-[500]'>Choose Car Model Image</span>
                             <input type='file' accept='image/*' onChange={handleImageChangeEdit} />
                         </div>
 
@@ -499,10 +541,9 @@ const CarList = () => {
                         </span>
                     </DialogActions>
                 </BootstrapDialog>
-
             </div>
         </div>
     )
 }
 
-export default CarList
+export default CarModels

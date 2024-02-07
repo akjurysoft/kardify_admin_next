@@ -1,3 +1,4 @@
+'use client'
 import React, { useCallback, useEffect, useState } from 'react'
 import { IoClose } from "react-icons/io5";
 import { IoSearch } from "react-icons/io5";
@@ -9,12 +10,14 @@ import Image from 'next/image';
 import Swal from 'sweetalert2'
 import axios from '../../../axios';
 import { useSnackbar } from '../snackbarProvider';
+import { useRouter } from 'next/navigation';
 
 // import LoadingSpinner from '../LoadingSpinner';
 
 
 const Category = () => {
   const { openSnackbar } = useSnackbar();
+  const router = useRouter()
 
   // ----------------------------------------------Fetch Category section Starts-----------------------------------------------------
   const [categoryData, setCategoryData] = useState([])
@@ -30,14 +33,24 @@ const Category = () => {
 
   const fetchCategoryData = useCallback(
     () => {
-      axios.get("/api/fetch-categories")
+      axios.get("/api/fetch-categories", {
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           if (res.data.code == 200) {
             setCategoryData(res.data.categories)
+          } else if(res.data.status === 'error' || res.data.message === 'Session expired'){
+            openSnackbar(res.data.message, 'error');
+            router.push('/login')
           }
         })
-        .then(err => {
+        .catch(err => {
           console.log(err)
+          if (err.response && err.response.data.statusCode === 400) {
+            router.push('/login')
+          }
         })
     },
     [],
@@ -89,7 +102,7 @@ const Category = () => {
 
   // Image uploading section
   const [image, setImage] = useState(null);
-  const [showImage , setShowImage] = useState(null)
+  const [showImage, setShowImage] = useState(null)
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -113,18 +126,19 @@ const Category = () => {
     formData.append('category_name', getCategoryName.category_name);
     formData.append('image', image);
 
-    axios.post('/api/add-categories',formData,{
+    axios.post('/api/add-categories', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', 
+        Authorization: localStorage.getItem('kardifyAdminToken'),
+        'Content-Type': 'multipart/form-data',
       },
     })
       .then(res => {
-        if(res.data.status === 'success'){
+        if (res.data.status === 'success') {
           fetchCategoryData()
           openSnackbar(res.data.message, 'success');
           setImage(null)
           setShowImage(null)
-        }else {
+        } else {
           openSnackbar(res.data.message, 'error');
         }
       })
@@ -140,8 +154,11 @@ const Category = () => {
 
   // ----------------------------------------------Change status section Starts-----------------------------------------------------
   const handleSwitchChange = (id) => {
-    axios.post(`/api/update-category-status?category_id=${id}`)
-      .then(res => {
+    axios.post(`/api/update-category-status?category_id=${id}`,{},{
+      headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken')
+      }
+    }).then(res => {
         if (res.data.status === 'success') {
           openSnackbar(res.data.message, 'success');
           fetchCategoryData()
@@ -167,21 +184,22 @@ const Category = () => {
     formData.append('category_id', editData.id)
     formData.append('category_name', getCategoryName.editCategoryName || editData.category_name);
     formData.append('image', image);
-    axios.post(`/api/update-categories`, formData,{
+    axios.post(`/api/update-categories`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', 
+        Authorization: localStorage.getItem('kardifyAdminToken'),
+        'Content-Type': 'multipart/form-data',
       },
     })
       .then(res => {
         console.log(res)
-        if(res.data.status === 'success'){
+        if (res.data.status === 'success') {
           fetchCategoryData()
           openSnackbar(res.data.message, 'success');
           setImage(null)
           setShowImage(null)
           setEditData({})
           setIsEditable(false)
-        } else{
+        } else {
           openSnackbar(res.data.message, 'error');
         }
       })
@@ -213,7 +231,11 @@ const Category = () => {
       confirmButtonText: "Yes! Delete it"
     }).then((result) => {
       if (result.isConfirmed) {
-        axios.post(`/api/delete-categories?category_id=${data.id}`)
+        axios.post(`/api/delete-categories?category_id=${data.id}`,{},{
+          headers:{
+            Authorization: localStorage.getItem('kardifyAdminToken')
+          }
+        })
           .then(res => {
             if (res.data.code == 200) {
               fetchCategoryData()

@@ -19,6 +19,16 @@ import ProductAttribute from './ProductAttribute';
 import ProductList from './ProductList';
 import BulkImport from './BulkImport';
 import CarList from './CarList';
+import CarBrands from './CarBrands';
+import CarModels from './CarModels';
+import Orders from './Orders';
+import Banners from './Banners';
+import Coupons from './Coupons';
+import Discounts from './Discounts';
+import Installer from './Installer';
+import Customers from './Customers';
+import Dealers from './Dealers';
+import Subscribed from './Subscribed';
 
 const Sidebar = () => {
 
@@ -108,6 +118,14 @@ const Sidebar = () => {
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Bulk Import</span>
                                 </div>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carbrand'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('carbrand')}>
+                                    <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
+                                    <span className='text-[15px] hover:text-[#FCF8EE]'>Car Brands</span>
+                                </div>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carmodel'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('carmodel')}>
+                                    <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
+                                    <span className='text-[15px] hover:text-[#FCF8EE]'>Car Models</span>
+                                </div>
                                 <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carlist'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('carlist')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Car List</span>
@@ -115,31 +133,31 @@ const Sidebar = () => {
                             </div>
                         )}
                     </div>
-                    <div className='flex flex-col spac-y-2'>
+                    <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>Promotion Management</span>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'banner'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('banner')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Banners
-                            </Link>
+                            </div>
                         </li>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/home" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'coupon'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('coupon')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Coupons
-                            </Link>
+                            </div>
                         </li>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/home" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'discount'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('discount')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Dicounts
-                            </Link>
+                            </div>
                         </li>
                     </div>
-                    <div className='flex flex-col spac-y-2'>
+                    <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>Order Management</span>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px] cursor-pointer'>
-                            <div className='flex items-center justify-between gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'orders'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('orders')}>
+                            <div className='flex items-center justify-between gap-[10px]' >
                                 <div className='flex item-center gap-[10px]'>
                                     <Image src={product} height={20} width={20} />
                                     Order Setup
@@ -147,16 +165,16 @@ const Sidebar = () => {
                             </div>
                         </li>
                     </div>
-                    <div className='flex flex-col spac-y-2'>
+                    <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>Installer Setting</span>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'installer'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('installer')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Installer List
-                            </Link>
+                            </div>
                         </li>
                     </div>
-                    <div className='flex flex-col spac-y-2'>
+                    <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>System Setting</span>
                         <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
                             <Link href="/category" className='flex items-center gap-[10px]'>
@@ -171,19 +189,25 @@ const Sidebar = () => {
                             </Link>
                         </li>
                     </div>
-                    <div className='flex flex-col spac-y-2'>
+                    <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>User Management</span>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'customer'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('customer')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Customer List
-                            </Link>
+                            </div>
                         </li>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'dealer'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('dealer')}>
+                            <div className='flex items-center gap-[10px]'>
+                                <Image src={banner} height={20} width={20} />
+                                Dealer List
+                            </div>
+                        </li>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'subscribed'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('subscribed')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Subscribed Customers
-                            </Link>
+                            </div>
                         </li>
                         <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
                             <Link href="/category" className='flex items-center gap-[10px]'>
@@ -232,8 +256,27 @@ const Sidebar = () => {
 
             {activeComponent === 'bulkimport' && <BulkImport />}
 
+            {activeComponent === 'carbrand' && <CarBrands />}
+
+            {activeComponent === 'carmodel' && <CarModels />}
+
             {activeComponent === 'carlist' && <CarList />}
 
+            {activeComponent === 'banner' && <Banners />}
+
+            {activeComponent === 'coupon' && <Coupons />}
+
+            {activeComponent === 'discount' && <Discounts />}
+
+            {activeComponent === 'orders' && <Orders />}
+
+            {activeComponent === 'installer' && <Installer />}
+
+            {activeComponent === 'customer' && <Customers />}
+
+            {activeComponent === 'dealer' && <Dealers />}
+
+            {activeComponent === 'subscribed' && <Subscribed />}
         </div>
     )
 }

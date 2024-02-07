@@ -199,3 +199,19 @@ input::file-selector-button {
   object-fit: cover;
   border-radius: 5px;
 }
+
+.css-1u4zpwo-MuiSvgIcon-root-MuiStepIcon-root.Mui-active{
+  color: #cfaa4d;
+}
+
+.custom-stepper .MuiStepIcon-root {
+  color: white; /* Set the color for the step icons */
+}
+
+.custom-stepper .MuiStepLabel-label {
+  color: white; /* Set the color for the step labels */
+}
+
+.css-1u4zpwo-MuiSvgIcon-root-MuiStepIcon-root.Mui-completed{
+  color: #CFAA4C;
+}

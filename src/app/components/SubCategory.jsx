@@ -9,9 +9,11 @@ import Image from 'next/image';
 import Swal from 'sweetalert2'
 import axios from '../../../axios';
 import { useSnackbar } from '../snackbarProvider';
+import { useRouter } from 'next/navigation';
 
 const SubCategory = () => {
   const { openSnackbar } = useSnackbar();
+  const router = useRouter()
   const [editData, setEditData] = useState({})
 
 
@@ -29,10 +31,16 @@ const SubCategory = () => {
 
   const fetchCategoryData = useCallback(
     () => {
-      axios.get("/api/fetch-categories")
+      axios.get("/api/fetch-categories",{
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           if (res.data.code == 200) {
             setCategoryData(res.data.categories)
+          } else if(res.data.code === 400){
+            router.push('/login')
           }
         })
         .then(err => {
@@ -58,11 +66,18 @@ const SubCategory = () => {
 
   const fetchSubCategoryData = useCallback(
     () => {
-      axios.get("/api/fetch-subcategories")
+      axios.get("/api/fetch-subcategories",{
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           console.log(res.data)
           if (res.data.code == 200) {
             setSubCategoryData(res.data.subcategories)
+          } else if(res.data.message === 'Session expired' || res.data.code == 401){
+            openSnackbar(res.data.message, 'error');
+            router.push('/login')
           }
         })
         .then(err => {
@@ -77,7 +92,7 @@ const SubCategory = () => {
   // ----------------------------------------------Add subCategory section Starts-----------------------------------------------------
   const [getSubCategoryName, setGetSubCategoryName] = useState({
     sub_category_name: '',
-    category_id: '' ,
+    category_id: '',
     editSubCategoryName: ''
   })
 
@@ -121,6 +136,7 @@ const SubCategory = () => {
 
     axios.post('/api/add-subcategories', formData, {
       headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken'),
         'Content-Type': 'multipart/form-data',
       },
     })
@@ -166,7 +182,11 @@ const SubCategory = () => {
 
   // ----------------------------------------------Change status section Starts-----------------------------------------------------
   const handleSwitchChange = (id) => {
-    axios.post(`/api/update-subcategory-status?sub_category_id=${id}`)
+    axios.post(`/api/update-subcategory-status?sub_category_id=${id}`,{},{
+      headers:{
+        Authorization: localStorage.getItem('kardifyAdminToken')
+      }
+    })
       .then(res => {
         if (res.data.status === 'success') {
           openSnackbar(res.data.message, 'success');
@@ -193,7 +213,11 @@ const SubCategory = () => {
       confirmButtonText: "Yes! Delete it"
     }).then((result) => {
       if (result.isConfirmed) {
-        axios.post(`/api/delete-subcategories?sub_category_id=${data.id}`)
+        axios.post(`/api/delete-subcategories?sub_category_id=${data.id}`,{},{
+          headers:{
+            Authorization: localStorage.getItem('kardifyAdminToken')
+          }
+        })
           .then(res => {
             if (res.data.code == 200) {
               fetchSubCategoryData()
@@ -213,7 +237,7 @@ const SubCategory = () => {
   // ----------------------------------------------Delete Sub Category section Starts-----------------------------------------------------
 
   const [isEditable, setIsEditable] = useState(false)
- 
+
   const handleEdit = (data) => {
     console.log(data)
     setEditData(data)
@@ -226,21 +250,22 @@ const SubCategory = () => {
     formData.append('sub_category_id', editData.id)
     formData.append('sub_category_name', getSubCategoryName.editSubCategoryName || editData.sub_category_name);
     formData.append('image', image);
-    axios.post(`/api/update-subcategories`, formData,{
+    axios.post(`/api/update-subcategories`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', 
+        Authorization: localStorage.getItem('kardifyAdminToken'),
+        'Content-Type': 'multipart/form-data',
       },
     })
       .then(res => {
         console.log(res)
-        if(res.data.status === 'success'){
+        if (res.data.status === 'success') {
           fetchSubCategoryData()
           openSnackbar(res.data.message, 'success');
           setImage(null)
           setShowImage(null)
           setEditData({})
           setIsEditable(false)
-        } else{
+        } else {
           openSnackbar(res.data.message, 'error');
         }
       })
@@ -270,7 +295,7 @@ const SubCategory = () => {
                 <span>Select Category Name *</span>
                 <select name='category_id' onChange={getData}>
                   <option>Choose Category</option>
-                  {categoryData && categoryData.filter(e=>e.status).map((e, i) =>
+                  {categoryData && categoryData.filter(e => e.status).map((e, i) =>
                     <option key={i} value={e.id}>{e.category_name}</option>
                   )}
                 </select>
@@ -419,13 +444,13 @@ const SubCategory = () => {
               </div>
               <div className='flex flex-col space-y-1 w-full'>
                 <span>Sub Category Name *</span>
-                <input type='text' placeholder='Horn' className='inputText' name='editSubCategoryName' onChange={getData} defaultValue={editData.sub_category_name}/>
+                <input type='text' placeholder='Horn' className='inputText' name='editSubCategoryName' onChange={getData} defaultValue={editData.sub_category_name} />
               </div>
               <div className='flex flex-col space-y-1 w-full'>
                 <span>Sub Category Image *</span>
                 <input type='file' accept='image/*' defaultValue={editData.image_url} onChange={handleImageChange} />
               </div>
-            {showImage && (
+              {showImage && (
                 <div className="relative bg-[#D8C7B6] rounded-[8px]">
                   <img src={showImage} alt='Uploaded Preview' width='200' className='rounded-[8px]' />
                   <span onClick={handleRemoveImage} className="absolute top-[-15px] right-0 bg-transparent text-black cursor-pointer">

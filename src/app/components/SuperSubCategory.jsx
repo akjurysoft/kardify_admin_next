@@ -26,7 +26,11 @@ const SuperSubCategory = () => {
 
   const fetchCategoryData = useCallback(
     () => {
-      axios.get("/api/fetch-categories")
+      axios.get("/api/fetch-categories", {
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           if (res.data.code == 200) {
             setCategoryData(res.data.categories)
@@ -55,7 +59,11 @@ const SuperSubCategory = () => {
 
   const fetchSubCategoryData = useCallback(
     () => {
-      axios.get("/api/fetch-subcategories")
+      axios.get("/api/fetch-subcategories", {
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           console.log(res.data)
           if (res.data.code == 200) {
@@ -86,7 +94,11 @@ const SuperSubCategory = () => {
 
   const fetchSuperSubCategoryData = useCallback(
     () => {
-      axios.get("/api/fetch-supersubcategories")
+      axios.get("/api/fetch-supersubcategories", {
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           console.log(res.data)
           if (res.data.status === 'success') {
@@ -102,11 +114,11 @@ const SuperSubCategory = () => {
 
   // ----------------------------------------------Fetch Super Sub Category section Ends-----------------------------------------------------
 
-   // ----------------------------------------------Add superSubCategory section Starts-----------------------------------------------------
-   const [getSuperSubCategoryName, setGetSuperSubCategoryName] = useState({
+  // ----------------------------------------------Add superSubCategory section Starts-----------------------------------------------------
+  const [getSuperSubCategoryName, setGetSuperSubCategoryName] = useState({
     sub_category_id: '',
-    category_id: '' ,
-    super_sub_category_name:''
+    category_id: '',
+    super_sub_category_name: ''
   })
 
   const getData = (e) => {
@@ -150,6 +162,7 @@ const SuperSubCategory = () => {
 
     axios.post('/api/add-supersubcategory', formData, {
       headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken'),
         'Content-Type': 'multipart/form-data',
       },
     })
@@ -188,9 +201,13 @@ const SuperSubCategory = () => {
   );
   const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-   // ----------------------------------------------Change status section Starts-----------------------------------------------------
-   const handleSwitchChange = (id) => {
-    axios.post(`/api/update-supersubcategory-status?super_sub_category_id=${id}`)
+  // ----------------------------------------------Change status section Starts-----------------------------------------------------
+  const handleSwitchChange = (id) => {
+    axios.post(`/api/update-supersubcategory-status?super_sub_category_id=${id}`, {}, {
+      headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken')
+      }
+    })
       .then(res => {
         if (res.data.status === 'success') {
           openSnackbar(res.data.message, 'success');
@@ -217,7 +234,11 @@ const SuperSubCategory = () => {
       confirmButtonText: "Yes! Delete it"
     }).then((result) => {
       if (result.isConfirmed) {
-        axios.post(`/api/delete-supersubcategories?super_sub_category_id=${data.id}`)
+        axios.post(`/api/delete-supersubcategories?super_sub_category_id=${data.id}`, {}, {
+          headers: {
+            Authorization: localStorage.getItem('kardifyAdminToken')
+          }
+        })
           .then(res => {
             if (res.data.code == 200) {
               fetchSuperSubCategoryData()
@@ -243,10 +264,10 @@ const SuperSubCategory = () => {
     setIsEditable(true)
   }
 
-  const [getUpdateSuperSubCategoryData , setGetUpdateSuperSubCategoryData] = useState({
-    category_id_edit:'',
-    sub_category_id_edit:'',
-    super_sub_category_name_edit:'',
+  const [getUpdateSuperSubCategoryData, setGetUpdateSuperSubCategoryData] = useState({
+    category_id_edit: '',
+    sub_category_id_edit: '',
+    super_sub_category_name_edit: '',
   })
 
   const getDataForUpdate = (e) => {
@@ -284,23 +305,24 @@ const SuperSubCategory = () => {
   const handleUpdateSuperSubCategory = () => {
     const formData = new FormData();
     formData.append('super_sub_category_name', getUpdateSuperSubCategoryData.super_sub_category_name_edit);
-    formData.append('super_sub_category_id' , editData.id)
+    formData.append('super_sub_category_id', editData.id)
     formData.append('image', imageEdit);
-    axios.post(`/api/edit-super-subcategory`, formData,{
+    axios.post(`/api/edit-super-subcategory`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', 
+        Authorization: localStorage.getItem('kardifyAdminToken'),
+        'Content-Type': 'multipart/form-data',
       },
     })
       .then(res => {
         console.log(res)
-        if(res.data.status === 'success'){
+        if (res.data.status === 'success') {
           fetchSuperSubCategoryData()
           openSnackbar(res.data.message, 'success');
           setImageEdit(null)
           setShowImageEdit(null)
           setEditData({})
           setIsEditable(false)
-        } else{
+        } else {
           openSnackbar(res.data.message, 'error');
         }
       })
@@ -346,7 +368,7 @@ const SuperSubCategory = () => {
               </div>
               <div className='flex flex-col space-y-1 w-full'>
                 <span>Super Sub Category Name *</span>
-                <input type='text' placeholder='Horn' className='inputText' name='super_sub_category_name' onChange={getData}/>
+                <input type='text' placeholder='Horn' className='inputText' name='super_sub_category_name' onChange={getData} />
               </div>
 
 
@@ -418,13 +440,13 @@ const SuperSubCategory = () => {
                         <TableRow key={row.id} >
                           <TableCell>{row.id}</TableCell>
                           <TableCell style={{ minWidth: '100' }}>
-                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${row.category.image_url}`} width={30} height={30} alt={row.category.category_name} className='rounded-[8px]' />
+                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${row.category?.image_url}`} width={30} height={30} alt={row.category?.category_name} className='rounded-[8px]' />
                           </TableCell>
-                          <TableCell>{row.category.category_name}</TableCell>
+                          <TableCell>{row.category?.category_name}</TableCell>
                           <TableCell>
-                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${row.subCategory.image_url}`} width={30} height={30} alt={row.subCategory.sub_category_name} className='rounded-[8px]' />
+                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${row.subCategory?.image_url}`} width={30} height={30} alt={row.subCategory?.sub_category_name} className='rounded-[8px]' />
                           </TableCell>
-                          <TableCell>{row.subCategory.sub_category_name}</TableCell>
+                          <TableCell>{row.subCategory?.sub_category_name}</TableCell>
                           <TableCell>
                             <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${row.image_url}`} width={30} height={30} alt={row.super_sub_category_name} className='rounded-[8px]' />
                           </TableCell>
@@ -443,12 +465,12 @@ const SuperSubCategory = () => {
                           </TableCell>
                           <TableCell>
                             <Switch
-                              checked={row.status }
+                              checked={row.status}
                               onChange={() => handleSwitchChange(row.id)}
                               inputProps={{ 'aria-label': 'controlled' }}
                               sx={{
                                 '& .MuiSwitch-thumb': {
-                                  backgroundColor: row.status? '#CFAA4C' : '',
+                                  backgroundColor: row.status ? '#CFAA4C' : '',
                                 },
                                 '& .Mui-checked + .MuiSwitch-track': {
                                   backgroundColor: '#CFAA4C',
@@ -510,7 +532,7 @@ const SuperSubCategory = () => {
               </div>
               <div className='flex flex-col space-y-1 w-full'>
                 <span>Super Sub Category Name *</span>
-                <input id='super_sub_category_name_edit' type='text' placeholder='Horn' defaultValue={editData.super_sub_category_name} className='inputText' name='super_sub_category_name_edit' onChange={getDataForUpdate}/>
+                <input id='super_sub_category_name_edit' type='text' placeholder='Horn' defaultValue={editData.super_sub_category_name} className='inputText' name='super_sub_category_name_edit' onChange={getDataForUpdate} />
               </div>
 
 

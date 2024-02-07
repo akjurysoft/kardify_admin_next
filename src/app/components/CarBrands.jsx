@@ -25,7 +25,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 
-const CarList = () => {
+const CarBrands = () => {
     const { openSnackbar } = useSnackbar();
 
     // ----------------------------------------------Fetch Car Brands Starts-----------------------------------------------------
@@ -42,10 +42,10 @@ const CarList = () => {
 
     const fetchCarBrandsData = useCallback(
         () => {
-            axios.get('/api/fetch-car-lists')
+            axios.get('/api/fetch-car-brands')
                 .then((res) => {
                     if (res.data.status === 'success') {
-                        setCarBrandsData(res.data.carLists)
+                        setCarBrandsData(res.data.brandName)
                     }
                 })
                 .then(err => {
@@ -69,7 +69,7 @@ const CarList = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredRows = carBrandsData.filter((e) =>
-        e.car_model.model_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        e.brand_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
@@ -288,7 +288,7 @@ const CarList = () => {
         <div className='px-[20px]  container mx-auto overflow-y-scroll'>
             <div className=' py-[10px] flex flex-col space-y-5'>
                 <div className='flex flex-col space-y-1'>
-                    <span className='text-[30px] text-[#101828] font-[500]'>Car List</span>
+                    <span className='text-[30px] text-[#101828] font-[500]'>Car Brands</span>
                     <span className='text-[#667085] font-[400] text-[16px]'>Simplify Management, Streamline Operations Unleash Efficiency in Admin Applications.</span>
                 </div>
 
@@ -296,8 +296,8 @@ const CarList = () => {
                 <div className='flex flex-col space-y-5  border border-[#EAECF0] rounded-[8px] p-[10px]'>
                     <div className='flex items-center px-3 justify-between'>
                         <div className='flex space-x-2 items-center'>
-                            <span className='text-[18px] font-[500] text-[#101828]'>Car List</span>
-                            <span className='px-[10px] py-[5px] bg-[#FCF8EE] rounded-[16px] text-[12px] text-[#A1853C]'>{carBrandsData.length} Car List</span>
+                            <span className='text-[18px] font-[500] text-[#101828]'>Car Brands</span>
+                            <span className='px-[10px] py-[5px] bg-[#FCF8EE] rounded-[16px] text-[12px] text-[#A1853C]'>{carBrandsData.length} brands</span>
                         </div>
                         <div className='flex items-center space-x-3 inputText w-[50%]'>
                             <IoSearch className='text-[20px]' />
@@ -312,7 +312,7 @@ const CarList = () => {
 
                         <div className='flex items-center gap-[5px] px-[18px] py-[10px] bg-[#cfaa4c] rounded-[8px] cursor-pointer hover:opacity-70' onClick={handleClickOpen}>
                             <MdAdd className='text-[#fff] text-[16px] font-[600]' />
-                            <span className=' text-[16px] text-[#fff] font-[600]'>Link Car Brand & Model</span>
+                            <span className=' text-[16px] text-[#fff] font-[600]'>Add New Car Brand</span>
                         </div>
                     </div>
 
@@ -505,4 +505,4 @@ const CarList = () => {
     )
 }
 
-export default CarList
+export default CarBrands
