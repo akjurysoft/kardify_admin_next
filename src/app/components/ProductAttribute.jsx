@@ -61,7 +61,11 @@ const ProductAttribute = () => {
 
   const fetchAttributeData = useCallback(
     () => {
-      axios.get('/api/fetch-all-attributes')
+      axios.get('/api/fetch-all-attributes', {
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           if (res.data.status === 'success') {
             setAttributeData(res.data.attributes)
@@ -97,13 +101,17 @@ const ProductAttribute = () => {
     const formData = new FormData();
     formData.append('attribute_name', getAttributeName.attribute_name);
 
-    axios.post('/api/add-attributes',formData)
+    axios.post('/api/add-attributes', formData, {
+      headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken')
+      }
+    })
       .then(res => {
-        if(res.data.status === 'success'){
+        if (res.data.status === 'success') {
           fetchAttributeData()
           openSnackbar(res.data.message, 'success');
           handleClose()
-        }else {
+        } else {
           openSnackbar(res.data.message, 'error');
         }
       })
@@ -118,7 +126,11 @@ const ProductAttribute = () => {
 
   // ----------------------------------------------Change status section Starts-----------------------------------------------------
   const handleSwitchChange = (id) => {
-    axios.post(`/api/update-attribute-status?attribute_id=${id}`)
+    axios.post(`/api/update-attribute-status?attribute_id=${id}`, {}, {
+      headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken')
+      }
+    })
       .then(res => {
         if (res.data.status === 'success') {
           openSnackbar(res.data.message, 'success');
@@ -161,7 +173,11 @@ const ProductAttribute = () => {
       confirmButtonText: "Yes! Delete it"
     }).then((result) => {
       if (result.isConfirmed) {
-        axios.post(`/api/delete-attributes?attribute_id=${data.id}`)
+        axios.post(`/api/delete-attributes?attribute_id=${data.id}`, {}, {
+          headers: {
+            Authorization: localStorage.getItem('kardifyAdminToken')
+          }
+        })
           .then(res => {
             if (res.data.code == 200) {
               fetchAttributeData()
@@ -188,7 +204,7 @@ const ProductAttribute = () => {
     setIsEditable(true)
   }
 
-  const [getEditedAttributeName , setGetEditedAttributeName] = useState({
+  const [getEditedAttributeName, setGetEditedAttributeName] = useState({
     attribute_name_edit: ''
   })
 
@@ -203,25 +219,29 @@ const ProductAttribute = () => {
     })
   }
 
-  const handleUpdateAttribute = () =>{
-    axios.post('/api/edit-attributes',{
+  const handleUpdateAttribute = () => {
+    axios.post('/api/edit-attributes', {
       attribute_id: editData.id,
-      attribute_name: getEditedAttributeName.attribute_name_edit? getEditedAttributeName.attribute_name_edit : editData.attribute_name 
-    })
-    .then(res => {
-      console.log(res)
-      if(res.data.status === 'success'){
-        openSnackbar(res.data.message, 'success');
-        fetchAttributeData()
-        setGetEditedAttributeName({})
-        handleClose1()
-      }else{
-        openSnackbar(res.data.message, 'error');
+      attribute_name: getEditedAttributeName.attribute_name_edit ? getEditedAttributeName.attribute_name_edit : editData.attribute_name
+    }, {
+      headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken')
       }
     })
-    .catch(err => {
-      console.log(err)
-    })
+      .then(res => {
+        console.log(res)
+        if (res.data.status === 'success') {
+          openSnackbar(res.data.message, 'success');
+          fetchAttributeData()
+          setGetEditedAttributeName({})
+          handleClose1()
+        } else {
+          openSnackbar(res.data.message, 'error');
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
   }
 
   const returnMain = () => {
@@ -362,7 +382,7 @@ const ProductAttribute = () => {
             <DialogContent dividers>
               <div className='flex flex-col space-y-2'>
                 <span className='text-[#344054] text-[14px] font-[500]'>Attribute Name</span>
-                <input type='text' className='inputText' placeholder='Ex: Colour' name='attribute_name' onChange={getData}/>
+                <input type='text' className='inputText' placeholder='Ex: Colour' name='attribute_name' onChange={getData} />
               </div>
             </DialogContent>
             <DialogActions className='justify-between'>
@@ -400,7 +420,7 @@ const ProductAttribute = () => {
             <DialogContent dividers>
               <div className='flex flex-col space-y-2'>
                 <span className='text-[#344054] text-[14px] font-[500]'>Attribute Name</span>
-                <input type='text' className='inputText' defaultValue={editData.attribute_name} placeholder='Ex: Colour' name='attribute_name_edit' onChange={getDataEdit}/>
+                <input type='text' className='inputText' defaultValue={editData.attribute_name} placeholder='Ex: Colour' name='attribute_name_edit' onChange={getDataEdit} />
               </div>
             </DialogContent>
             <DialogActions className='justify-between'>

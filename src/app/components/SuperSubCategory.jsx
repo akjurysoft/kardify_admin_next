@@ -12,6 +12,25 @@ import axios from '../../../axios';
 
 const SuperSubCategory = () => {
   const { openSnackbar } = useSnackbar();
+
+  const [getSuperSubCategoryName, setGetSuperSubCategoryName] = useState({
+    sub_category_id: '',
+    category_id: '',
+    super_sub_category_name: ''
+  })
+
+  const getData = (e) => {
+    const { value, name } = e.target;
+
+    setGetSuperSubCategoryName(() => {
+      return {
+        ...getSuperSubCategoryName,
+        [name]: value
+      }
+    })
+  }
+
+  console.log('getSuperSubCategoryName', getSuperSubCategoryName)
   // ----------------------------------------------Fetch Category section Starts-----------------------------------------------------
   const [categoryData, setCategoryData] = useState([])
 
@@ -55,25 +74,28 @@ const SuperSubCategory = () => {
     }
 
     return () => { unmounted = true };
-  }, [])
+  }, [getSuperSubCategoryName.category_id])
 
-  const fetchSubCategoryData = useCallback(
-    () => {
-      axios.get("/api/fetch-subcategories", {
-        headers: {
-          Authorization: localStorage.getItem('kardifyAdminToken')
+  const fetchSubCategoryData = useCallback(() => {
+    let url = "/api/fetch-subcategories";
+    if (getSuperSubCategoryName.category_id !== '') {
+      url += `?category_id=${getSuperSubCategoryName.category_id}`;
+    }
+    axios.get(url, {
+      headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken')
+      }
+    })
+      .then((res) => {
+        console.log(res.data)
+        if (res.data.code == 200) {
+          setSubCategoryData(res.data.subcategories)
         }
       })
-        .then((res) => {
-          console.log(res.data)
-          if (res.data.code == 200) {
-            setSubCategoryData(res.data.subcategories)
-          }
-        })
-        .then(err => {
-          console.log(err)
-        })
-    },
+      .then(err => {
+        console.log(err)
+      })
+  },
     [],
   )
 
@@ -115,22 +137,7 @@ const SuperSubCategory = () => {
   // ----------------------------------------------Fetch Super Sub Category section Ends-----------------------------------------------------
 
   // ----------------------------------------------Add superSubCategory section Starts-----------------------------------------------------
-  const [getSuperSubCategoryName, setGetSuperSubCategoryName] = useState({
-    sub_category_id: '',
-    category_id: '',
-    super_sub_category_name: ''
-  })
 
-  const getData = (e) => {
-    const { value, name } = e.target;
-
-    setGetSuperSubCategoryName(() => {
-      return {
-        ...getSuperSubCategoryName,
-        [name]: value
-      }
-    })
-  }
 
   // Image uploading section
   const [image, setImage] = useState(null);

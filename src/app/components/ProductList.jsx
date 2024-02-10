@@ -13,130 +13,88 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { useSnackbar } from '../snackbarProvider';
 import axios from '../../../axios';
 import { Autocomplete, Checkbox, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { getProductAttributes } from '../api';
-
+import { getCarBrands, getCategories, getProductAttributes, getProductBrands, getSubCategories, getSuperSubCategories } from '../api';
+import * as XLSX from 'xlsx';
 
 
 const ProductList = () => {
   const { openSnackbar } = useSnackbar();
-  // ----------------------------------------------Fetch Category section Starts-----------------------------------------------------
-  const [categoryData, setCategoryData] = useState([])
 
   useEffect(() => {
     let unmounted = false;
     if (!unmounted) {
-      fetchCategoryData()
+      fetchCategory()
+      fetchSubCategory()
+      fetchSuperSubCategory()
+      fetchCarBrand()
+      fetchProductBrand()
     }
 
     return () => { unmounted = true };
   }, [])
 
-  const fetchCategoryData = useCallback(
-    () => {
-      axios.get("/api/fetch-categories")
-        .then((res) => {
-          if (res.data.code == 200) {
-            setCategoryData(res.data.categories)
-          }
-        })
-        .then(err => {
-          console.log(err)
-        })
-    },
-    [],
-  )
+
+  // ----------------------------------------------Fetch Category section Starts-----------------------------------------------------
+  const [categoryData, setCategoryData] = useState([])
+  const fetchCategory = async () => {
+    try {
+      const getAllcategoryData = await getCategories();
+      setCategoryData(getAllcategoryData.categories);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
 
   // ----------------------------------------------Fetch Category section Ends-----------------------------------------------------
 
   // ----------------------------------------------Fetch Sub Category section Starts-----------------------------------------------------
   const [subCategoryData, setSubCategoryData] = useState([])
-
-  useEffect(() => {
-    let unmounted = false;
-    if (!unmounted) {
-      fetchSubCategoryData()
+  const fetchSubCategory = async () => {
+    try {
+      const getSubCatgeoryData = await getSubCategories();
+      setSubCategoryData(getSubCatgeoryData.subcategories);
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-
-    return () => { unmounted = true };
-  }, [])
-
-  const fetchSubCategoryData = useCallback(
-    () => {
-      axios.get("/api/fetch-subcategories")
-        .then((res) => {
-          console.log(res.data)
-          if (res.data.code == 200) {
-            setSubCategoryData(res.data.subcategories)
-          }
-        })
-        .then(err => {
-          console.log(err)
-        })
-    },
-    [],
-  )
-
+  };
   // ----------------------------------------------Fetch Sub Category section Ends-----------------------------------------------------
 
 
   // ----------------------------------------------Fetch Super Sub Category section Starts-----------------------------------------------------
   const [superSubCategoryData, setSuperSubCategoryData] = useState([])
-
-  useEffect(() => {
-    let unmounted = false;
-    if (!unmounted) {
-      fetchSuperSubCategoryData()
+  const fetchSuperSubCategory = async () => {
+    try {
+      const getSuperSubCategoryData = await getSuperSubCategories();
+      setSuperSubCategoryData(getSuperSubCategoryData.superSubcategories);
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-
-    return () => { unmounted = true };
-  }, [])
-
-  const fetchSuperSubCategoryData = useCallback(
-    () => {
-      axios.get("/api/fetch-supersubcategories")
-        .then((res) => {
-          console.log(res.data)
-          if (res.data.status === 'success') {
-            setSuperSubCategoryData(res.data.superSubcategories)
-          }
-        })
-        .then(err => {
-          console.log(err)
-        })
-    },
-    [],
-  )
-
+  };
   // ----------------------------------------------Fetch Super Sub Category section Ends-----------------------------------------------------
+
+  // ----------------------------------------------Fetch Product Brands section Starts-----------------------------------------------------
+  const [productBrandData, setProductBrandData] = useState([])
+  const fetchProductBrand = async () => {
+    try {
+      const getProductBrandsData = await getProductBrands();
+      setProductBrandData(getProductBrandsData.brandNames);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+  // ----------------------------------------------Fetch Product Brands section Ends-----------------------------------------------------
 
 
   // ----------------------------------------------Fetch Car Brands section Starts-----------------------------------------------------
   const [carBrandsData, setCarBrandsData] = useState([])
-
-  useEffect(() => {
-    let unmounted = false;
-    if (!unmounted) {
-      fetchCarBrandsData()
+  const fetchCarBrand = async () => {
+    try {
+      const getCarBrandsData = await getCarBrands();
+      setCarBrandsData(getCarBrandsData.brandName);
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-
-    return () => { unmounted = true };
-  }, [])
-
-  const fetchCarBrandsData = useCallback(
-    () => {
-      axios.get("/api/fetch-car-brands")
-        .then((res) => {
-          if (res.data.status === 'success') {
-            setCarBrandsData(res.data.brandName)
-          }
-        })
-        .then(err => {
-          console.log(err)
-        })
-    },
-    [],
-  )
-
+  };
   // ----------------------------------------------Fetch Car Brands section Ends-----------------------------------------------------
 
   // ----------------------------------------------Fetch Car Model section Starts-----------------------------------------------------
@@ -225,8 +183,6 @@ const ProductList = () => {
     has_warranty: '',
     warranty: ''
   })
-
-  console.log(getProductData)
 
   // product brand info section
   const [showSecondDiv, setShowSecondDiv] = useState(false);
@@ -335,33 +291,47 @@ const ProductList = () => {
         formData.append('quantity', getProductData.quantity),
         formData.append('image_count', uploadedImages.length);
 
+
+      const combinationsData = fieldData && fieldData.map(combination => ({
+        combination: combination.combination,
+        price: data[`${combination.combination}_price`],
+        stock: data[`${combination.combination}_stock`]
+      }));
+
+
+      const combinationsDataString = JSON.stringify(combinationsData);
+      formData.append('combinations', combinationsDataString);
+
       images.forEach((image, index) => {
         formData.append(`image_${index + 1}`, image);
       });
-      axios({
-        method: "POST",
-        url: '/api/add-products',
-        data: formData,
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      })
-        .then(res => {
-          if (res.data.status === 'success') {
-            openSnackbar(res.data.message, 'success');
-            setIsClickedAddProduct(false)
-            fetchProductData()
-            setSelectedBrandObject({})
-            setSelectedModelObject({})
-            setUploadedImages([])
-          } else {
-            openSnackbar(res.data.message, 'error');
-          }
-        })
-        .catch(err => {
-          console.log(err)
-          openSnackbar(err.response.data.message, 'error');
-        })
+
+      console.log('Combinations:', JSON.parse(formData.get('combinations')));
+
+      // axios({
+      //   method: "POST",
+      //   url: '/api/add-products',
+      //   data: formData,
+      //   headers: {
+      //     "Content-Type": "multipart/form-data"
+      //   }
+      // })
+      //   .then(res => {
+      //     if (res.data.status === 'success') {
+      //       openSnackbar(res.data.message, 'success');
+      //       setIsClickedAddProduct(false)
+      //       fetchProductData()
+      //       setSelectedBrandObject({})
+      //       setSelectedModelObject({})
+      //       setUploadedImages([])
+      //     } else {
+      //       openSnackbar(res.data.message, 'error');
+      //     }
+      //   })
+      //   .catch(err => {
+      //     console.log(err)
+      //     openSnackbar(err.response.data.message, 'error');
+      //   })
 
     }
 
@@ -389,7 +359,7 @@ const ProductList = () => {
   };
 
   const [page, setPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
   const totalRows = productData.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
 
@@ -398,16 +368,69 @@ const ProductList = () => {
   };
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryCategory, setSearchQueryCategory] = useState('');
+  const [searchQuerySubCategory, setSearchQuerySubCategory] = useState('');
+  const [searchQuerySuperSubCategory, setSearchQuerySuperSubCategory] = useState('');
+  const [searchQueryBrand, setSearchQueryBrand] = useState('');
 
   const filteredRows = productData.filter((e) =>
-    e.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+    e.product_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    e.category.category_name.toLowerCase().includes(searchQueryCategory.toLowerCase()) &&
+    e.sub_category.sub_category_name?.toLowerCase().includes(searchQuerySubCategory.toLowerCase()) &&
+    e.super_sub_category.super_sub_category_name?.toLowerCase().includes(searchQuerySuperSubCategory.toLowerCase())
   );
+
+  const handleExportToExcel = () => {
+    Swal.fire({
+      title: "Download",
+      text: `Do you want to Download this?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#CFAA4C",
+      cancelButtonColor: "#d33",
+      cancelButtonText: "No",
+      confirmButtonText: "Yes! Download it"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(filteredRows);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Filtered Data');
+        XLSX.writeFile(workbook, 'Kardify_Product_Data.xlsx');
+        Swal.fire({
+          title: "Downloaded!",
+          text: "Your file has been successfully Downloaded.",
+          icon: "success"
+        });
+      }
+    });
+  };
+
   const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  const deleteCategory = (data) => {
+  // ----------------------------------------------Change status section Starts-----------------------------------------------------
+  const handleSwitchChange = (id) => {
+    axios.post(`/api/status-change-product?product_id=${id}`, {}, {
+      headers: {
+        Authorization: localStorage.getItem('kardifyAdminToken')
+      }
+    })
+      .then(res => {
+        if (res.data.status === 'success') {
+          openSnackbar(res.data.message, 'success');
+          fetchProductData()
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  };
+  // ----------------------------------------------Change status section Ends-----------------------------------------------------
+
+   // ----------------------------------------------Delete car brands section Starts-----------------------------------------------------
+   const deleteProduct = (data) => {
     Swal.fire({
       title: "Delete",
-      text: `Do you want to Delete this ${data.col1}?`,
+      text: `Do you want to Delete this ${data.product_name}?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#CFAA4C",
@@ -416,16 +439,29 @@ const ProductList = () => {
       confirmButtonText: "Yes! Delete it"
     }).then((result) => {
       if (result.isConfirmed) {
-        const updatedRows = categoryData.filter((row) => row.id !== data.id);
-        setCategoryData(updatedRows);
-        Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success"
-        });
+        axios.post(`/api/delete-product?product_id=${data.id}`, {}, {
+          headers: {
+            Authorization: localStorage.getItem('kardifyAdminToken')
+          }
+        })
+          .then(res => {
+            if (res.data.status === 'success') {
+              fetchProductData()
+              openSnackbar(res.data.message, 'success');
+              if (page > 1 && paginatedRows.length === 1) {
+                setPage(page - 1);
+              }
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
       }
     });
   };
+
+  // ----------------------------------------------Delete Car brands section Ends-----------------------------------------------------
+
 
   const [isClickedAddProduct, setIsClickedAddProduct] = useState(false)
   const handleAddNewProduct = () => {
@@ -459,9 +495,6 @@ const ProductList = () => {
   const [selectedAttribute, setSelectedAttribute] = useState([])
   const [data, setData] = useState({});
 
-  console.log('selectedProductAttribute',selectedProductAttribute)
-  console.log('selectedAttribute',selectedAttribute)
-
   const handleProductChange = (event, value) => {
     setSelectedProductAttribute(value);
     setSelectedAttribute((prevData) => ({
@@ -478,25 +511,6 @@ const ProductList = () => {
       return { ...prevData, attributes: updatedAttributes };
     });
   };
-
-  // const handleInputChange = (event, attributeIndex) => {
-  //   const { value } = event.target;
-  //   console.log(value)
-  //   if (value.endsWith(' ') || value.endsWith(',')) {
-  //     const option = value.trim();
-  //     if (option.length > 0) {
-  //       setSelectedAttribute((prevData) => {
-  //         const updatedAttributes = [...prevData.attributes];
-  //         updatedAttributes[attributeIndex].attribute_options = [
-  //           ...updatedAttributes[attributeIndex].attribute_options,
-  //           option
-  //         ];
-  //         return { ...prevData, attributes: updatedAttributes };
-  //       });
-  //       event.target.value = '';
-  //     }
-  //   }
-  // };
 
   const handleInputChange = (event, attributeIndex) => {
     const { value } = event.target;
@@ -516,23 +530,6 @@ const ProductList = () => {
       return { ...prevData, attributes: updatedAttributes };
     });
   };
-
-
-  // const generateCombinations = (attributes) => {
-  //   const combinations = [];
-
-  //   attributes && attributes.forEach((attribute, index) => {
-  //     attribute.attribute_options.forEach((option) => {
-  //       for (let i = index + 1; i < attributes.length; i++) {
-  //         attributes[i].attribute_options.forEach((otherOption) => {
-  //           combinations.push(`${option}-${otherOption}`);
-  //         });
-  //       }
-  //     });
-  //   });
-
-  //   return combinations;
-  // };
 
   const generateCombinations = (attributes) => {
     const combinations = [];
@@ -556,30 +553,6 @@ const ProductList = () => {
     return combinations;
   };
 
-  // const generateFieldData = (combinations) => {
-  //   return combinations.map((combination) => {
-  //     const parts = combination.split('-');
-  //     const fields = [
-  //       { label: 'price', name: `${combination}_price`, type: 'text' },
-  //       { label: 'stock', name: `${combination}_stock`, type: 'text' }
-  //     ];
-
-  //     const onChange = (fieldName, value) => {
-  //       setData((prevData) => ({
-  //         ...prevData,
-  //         [fieldName]: value
-  //       }));
-  //       console.log('Data:', data);
-  //     };
-
-  //     fields.forEach(field => {
-  //       field.onChange = onChange(field.name); 
-  //     });
-
-  //     return { combination, fields };
-  //   });
-  // };
-
   const generateFieldData = (combinations) => {
     return combinations.map((combination) => {
       console.log('combination', combination)
@@ -599,13 +572,9 @@ const ProductList = () => {
     }));
   };
 
-  console.log('data', data)
-
   const combinations = generateCombinations(selectedAttribute.attributes);
-  console.log('combinations', combinations);
 
   const fieldData = generateFieldData(combinations);
-  console.log('fieldData', fieldData)
 
   return (
     <>
@@ -622,20 +591,44 @@ const ProductList = () => {
             <div className='flex items-center justify-between gap-[10px]'>
               <div className='flex flex-col space-y-1 w-full'>
                 <span className='text-[14px] font-[500] text-[#344054]'>Search by category</span>
-                <input type='text' placeholder='Exterior' className='inputText' />
+                <input
+                  type='text'
+                  placeholder='Seach By Category'
+                  className='inputText !text-[14px]'
+                  value={searchQueryCategory}
+                  onChange={(e) => setSearchQueryCategory(e.target.value)}
+                />
               </div>
               <div className='flex flex-col space-y-1 w-full'>
                 <span className='text-[14px] font-[500] text-[#344054]'>Search by sub category</span>
-                <input type='text' placeholder='Exterior' className='inputText' />
+                <input
+                  type='text'
+                  placeholder='Search By Sub Category'
+                  className='inputText !text-[14px]'
+                  value={searchQuerySubCategory}
+                  onChange={(e) => setSearchQuerySubCategory(e.target.value)}
+                />
               </div>
               <div className='flex flex-col space-y-1 w-full'>
                 <span className='text-[14px] font-[500] text-[#344054]'>Search by super sub category</span>
-                <input type='text' placeholder='Exterior' className='inputText' />
+                <input
+                  type='text'
+                  placeholder='Search By Super Sub Category'
+                  className='inputText !text-[14px]'
+                  value={searchQuerySuperSubCategory}
+                  onChange={(e) => setSearchQuerySuperSubCategory(e.target.value)}
+                />
               </div>
-              <div className='flex flex-col space-y-1 w-full'>
+              {/* <div className='flex flex-col space-y-1 w-full'>
                 <span className='text-[14px] font-[500] text-[#344054]'>Search by Brand</span>
-                <input type='text' placeholder='Exterior' className='inputText' />
-              </div>
+                <input
+                  type='text'
+                  placeholder='Exterior'
+                  className='inputText'
+                  value={searchQueryBrand}
+                  onChange={(e) => setSearchQueryBrand(e.target.value)}
+                />
+              </div> */}
             </div>
 
             <div className='flex flex-col space-y-5  border border-[#EAECF0] rounded-[8px] p-[10px]'>
@@ -648,7 +641,7 @@ const ProductList = () => {
                   <IoSearch className='text-[20px]' />
                   <input
                     type='text'
-                    className='outline-none focus-none'
+                    className='outline-none focus-none !text-[14px] w-full'
                     placeholder='Search By Product'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -656,7 +649,7 @@ const ProductList = () => {
                 </div>
 
                 <div className='flex space-x-2'>
-                  <div className='px-[16px] py-[10px] gap-[5px] flex items-center rounded-[8px] border border-[#D0D5DD] cursor-pointer '>
+                  <div className='px-[16px] py-[10px] gap-[5px] flex items-center rounded-[8px] border border-[#D0D5DD] cursor-pointer hover:bg-[#cfaa4c] hover:text-[#fff] hover:border-none' onClick={handleExportToExcel}>
                     <MdOutlineFileDownload className='text-[20px] font-[600]' />
                     <span className=' text-[14px] font-[600]'>Export</span>
                   </div>
@@ -688,10 +681,10 @@ const ProductList = () => {
                     </TableHead>
                     {filteredRows.length > 0 ?
                       <TableBody>
-                        {paginatedRows.map((row) => (
+                        {paginatedRows.map((row, i) => (
                           <TableRow key={row.id} >
-                            <TableCell>{row.id}</TableCell>
-                            <TableCell>{row.car_brand.brand_name}</TableCell>
+                            <TableCell>{i + 1}</TableCell>
+                            <TableCell>{row.car_brand.brand_name || 'N/A'}</TableCell>
                             <TableCell>
                               <Image src="/images/categoryimage.svg" width={40} height={30} alt='categroy' className='rounded-[8px]' />
                             </TableCell>
@@ -725,7 +718,7 @@ const ProductList = () => {
                                 }}
                               />
                             </TableCell>
-                            <TableCell ><FaRegTrashAlt className='cursor-pointer' onClick={() => deleteCategory(row)} /></TableCell>
+                            <TableCell ><FaRegTrashAlt className='cursor-pointer' onClick={() => deleteProduct(row)} /></TableCell>
                             <TableCell><FaEdit className='cursor-pointer' onClick={() => handleEdit(row)} /></TableCell>
                           </TableRow>
                         ))}
@@ -772,8 +765,13 @@ const ProductList = () => {
                   <textarea className='outline-none focus-none inputText !text-[14px] h-[120px]' placeholder='Add product description' name='product_desc' onChange={getData} />
                 </div>
                 <div className='flex flex-col space-y-1'>
-                  <span className='text-[14px] text-[#344054] font-[500]'>Brand Name</span>
-                  <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='Add product brand name' name='product_brand' onChange={getData} />
+                  <span className='text-[14px] text-[#344054] font-[500]'> Product Brand Name</span>
+                  <select className='!text-[14px]' name='category_id' onChange={getData}>
+                    <option >Choose Product Brand</option>
+                    {productBrandData && productBrandData.filter(e => e.status).map((e, i) =>
+                      <option key={i} value={e.id}>{e.brand_name}</option>
+                    )}
+                  </select>
                 </div>
               </div>
               <div className='flex flex-col border space-y-3 border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>

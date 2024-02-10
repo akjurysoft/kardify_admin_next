@@ -29,6 +29,7 @@ import Installer from './Installer';
 import Customers from './Customers';
 import Dealers from './Dealers';
 import Subscribed from './Subscribed';
+import ProductBrands from './ProductBrands';
 
 const Sidebar = () => {
 
@@ -41,15 +42,20 @@ const Sidebar = () => {
 
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [isProductOpen, setIsProductOpen] = useState(false);
+    const [isCarOpen, setIsCarOpen] = useState(false);
 
     const toggleCategoryDropdown = () => {
-        console.log('first')
         setIsCategoryOpen(!isCategoryOpen);
     };
 
     const toggleProductDropdown = () => {
         setIsProductOpen(!isProductOpen);
     };
+
+    const toggleCarBrandDropdown = () => {
+        setIsCarOpen(!isCarOpen);
+    };
+
     return (
         <div className='flex h-screen'>
 
@@ -60,15 +66,14 @@ const Sidebar = () => {
                     <span className='text-black font-bold'>Kardify</span>
                 </div>
 
-
                 <ul className="space-y-3 text-black h-[100%] overflow-y-scroll">
-                    <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'dashboard'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('dashboard')}>
+                    <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'dashboard' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('dashboard')}>
                         <div className='flex items-center gap-[10px] '>
                             <Image src={dashboard} height={20} width={20} />
                             Dashboard
                         </div>
                     </li>
-                    <div className='flex flex-col spac-y-2'>
+                    <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>Product Management</span>
                         <li className='leftMenuHover p-[10px] rounded-[8px] cursor-pointer' onClick={toggleCategoryDropdown}>
                             <div className='flex items-center justify-between gap-[10px] ' >
@@ -81,20 +86,21 @@ const Sidebar = () => {
                         </li>
                         {isCategoryOpen && (
                             <div className='flex flex-col space-y-1 py-2'>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'category'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('category')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'category' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('category')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Categories</span>
                                 </div>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'subcategory'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('subcategory')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'subcategory' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('subcategory')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Sub categories</span>
                                 </div>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'supersubcategory'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('supersubcategory')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'supersubcategory' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('supersubcategory')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Super Sub categories</span>
                                 </div>
                             </div>
                         )}
+                        
                         <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px] cursor-pointer' onClick={toggleProductDropdown}>
                             <div className='flex items-center justify-between gap-[10px]' >
                                 <div className='flex item-center gap-[10px]'>
@@ -106,27 +112,46 @@ const Sidebar = () => {
                         </li>
                         {isProductOpen && (
                             <div className='flex flex-col space-y-1 py-2'>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'productattribute'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('productattribute')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'productattribute' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('productattribute')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Product Attribute</span>
                                 </div>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'productlist'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('productlist')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'productlist' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('productlist')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Product List</span>
                                 </div>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'bulkimport'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('bulkimport')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'productbrand' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('productbrand')}>
+                                    <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
+                                    <span className='text-[15px] hover:text-[#FCF8EE]'>Product Brands</span>
+                                </div>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'bulkimport' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('bulkimport')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Bulk Import</span>
                                 </div>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carbrand'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('carbrand')}>
+                            </div>
+                        )}
+
+                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px] cursor-pointer' onClick={toggleCarBrandDropdown}>
+                            <div className='flex items-center justify-between gap-[10px]' >
+                                <div className='flex item-center gap-[10px]'>
+                                    <Image src={product} height={20} width={20} />
+                                    Car Brand/Make/Model
+                                </div>
+                                {isCarOpen ? <FaAngleUp /> : <FaAngleDown />}
+                            </div>
+                        </li>
+
+                        {isCarOpen && (
+                            <div className='flex flex-col space-y-1 py-2'>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carbrand' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('carbrand')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Car Brands</span>
                                 </div>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carmodel'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('carmodel')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carmodel' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('carmodel')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Car Models</span>
                                 </div>
-                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carlist'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('carlist')}>
+                                <div className={`flex items-center hover:bg-[#cfaa4c]/60 hover:text-[#fff] rounded-[8px] gap-[20px] cursor-pointer p-[10px] ${activeComponent === 'carlist' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('carlist')}>
                                     <span className='bg-black w-[7px] h-[7px] rounded-full'></span>
                                     <span className='text-[15px] hover:text-[#FCF8EE]'>Car List</span>
                                 </div>
@@ -135,19 +160,19 @@ const Sidebar = () => {
                     </div>
                     <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>Promotion Management</span>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'banner'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('banner')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'banner' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('banner')}>
                             <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Banners
                             </div>
                         </li>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'coupon'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('coupon')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'coupon' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('coupon')}>
                             <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Coupons
                             </div>
                         </li>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'discount'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('discount')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'discount' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('discount')}>
                             <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Dicounts
@@ -156,7 +181,7 @@ const Sidebar = () => {
                     </div>
                     <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>Order Management</span>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'orders'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('orders')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'orders' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('orders')}>
                             <div className='flex items-center justify-between gap-[10px]' >
                                 <div className='flex item-center gap-[10px]'>
                                     <Image src={product} height={20} width={20} />
@@ -167,7 +192,7 @@ const Sidebar = () => {
                     </div>
                     <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>Installer Setting</span>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'installer'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('installer')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'installer' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('installer')}>
                             <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Installer List
@@ -191,19 +216,19 @@ const Sidebar = () => {
                     </div>
                     <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>User Management</span>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'customer'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('customer')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'customer' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('customer')}>
                             <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Customer List
                             </div>
                         </li>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'dealer'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('dealer')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'dealer' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('dealer')}>
                             <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Dealer List
                             </div>
                         </li>
-                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'subscribed'? 'activeLeftMenu': ''}`} onClick={() => handleMenuItemClick('subscribed')}>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'subscribed' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('subscribed')}>
                             <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Subscribed Customers
@@ -253,6 +278,8 @@ const Sidebar = () => {
             {activeComponent === 'productattribute' && <ProductAttribute />}
 
             {activeComponent === 'productlist' && <ProductList />}
+
+            {activeComponent === 'productbrand' && <ProductBrands />}
 
             {activeComponent === 'bulkimport' && <BulkImport />}
 

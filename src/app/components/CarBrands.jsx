@@ -200,8 +200,8 @@ const CarBrands = () => {
 
     // ------------------------------------------------------Edit car brands section--------------------------------------------------
 
-    const [getCarBrandNameEdit , setGetCarBrandNameEdit] = useState({
-        edit_brand_name:''
+    const [getCarBrandNameEdit, setGetCarBrandNameEdit] = useState({
+        edit_brand_name: ''
     })
 
     const getEditData = (e) => {
@@ -215,26 +215,26 @@ const CarBrands = () => {
         })
     }
 
-     // Image uploading section
-     const [imageEdit, setImageEdit] = useState(null);
-     const [showImageEdit, setShowImageEdit] = useState(null)
- 
-     const handleImageChangeEdit = (e) => {
-         const file = e.target.files[0];
-         if (file) {
-             const reader = new FileReader();
-             reader.onload = (e) => {
+    // Image uploading section
+    const [imageEdit, setImageEdit] = useState(null);
+    const [showImageEdit, setShowImageEdit] = useState(null)
+
+    const handleImageChangeEdit = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
                 setImageEdit(file);
                 setShowImageEdit(e.target.result)
-             };
-             reader.readAsDataURL(file);
-         }
-     };
- 
-     const handleRemoveImageEdit = () => {
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImageEdit = () => {
         setImageEdit(null);
         setShowImageEdit(null)
-     };
+    };
 
     const [open1, setOpen1] = React.useState(false);
 
@@ -242,6 +242,8 @@ const CarBrands = () => {
         setOpen1(true);
     };
     const handleClose1 = () => {
+        setImageEdit(null)
+        setShowImageEdit(null)
         setOpen1(false);
     };
 
@@ -473,7 +475,7 @@ const CarBrands = () => {
                     <DialogContent dividers>
                         <div className='flex flex-col space-y-2'>
                             <span className='text-[#344054] text-[14px] font-[500]'>Car Brand Name</span>
-                            <input type='text' defaultValue={editData.brand_name} className='inputText' placeholder='Ex: Colour' name='edit_brand_name' onChange={getEditData}/>
+                            <input type='text' defaultValue={editData.brand_name} className='inputText' placeholder='Ex: Colour' name='edit_brand_name' onChange={getEditData} />
                         </div>
 
                         <div className='flex flex-col space-y-2 py-5'>

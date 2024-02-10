@@ -63,8 +63,24 @@ export const getSuperSubCategories = async () => {
 
 export const getProductBrands = async () => {
     try {
-        const response = await axios.get('/api/fetch-product-brands-admin');
-        if(response.data.code === 200){
+        const response = await axios.get('/api/fetch-product-brands-admin',{
+            headers : {
+                Authorization : localStorage.getItem('kardifyAdminToken')
+            }
+        });
+        if(response.data.status === 'success'){
+            return response.data;
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+};
+
+export const getCarBrands = async () => {
+    try {
+        const response = await axios.get('/api/fetch-car-brands');
+        if(response.data.status === 'success'){
             return response.data;
         }
     } catch (error) {
@@ -75,7 +91,11 @@ export const getProductBrands = async () => {
 
 export const getProductAttributes = async () => {
     try {
-        const response = await axios.get('/api/fetch-all-attributes');
+        const response = await axios.get('/api/fetch-all-attributes',{
+            headers : {
+                Authorization : localStorage.getItem('kardifyAdminToken')
+            }
+        });
         if(response.data.code === 200){
             return response.data;
         }
