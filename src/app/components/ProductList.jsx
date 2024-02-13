@@ -302,36 +302,40 @@ const ProductList = () => {
       const combinationsDataString = JSON.stringify(combinationsData);
       formData.append('combinations', combinationsDataString);
 
+    formData.append('combinations', JSON.stringify(combinationsData));
+    
+    
+
       images.forEach((image, index) => {
         formData.append(`image_${index + 1}`, image);
       });
 
       console.log('Combinations:', JSON.parse(formData.get('combinations')));
 
-      // axios({
-      //   method: "POST",
-      //   url: '/api/add-products',
-      //   data: formData,
-      //   headers: {
-      //     "Content-Type": "multipart/form-data"
-      //   }
-      // })
-      //   .then(res => {
-      //     if (res.data.status === 'success') {
-      //       openSnackbar(res.data.message, 'success');
-      //       setIsClickedAddProduct(false)
-      //       fetchProductData()
-      //       setSelectedBrandObject({})
-      //       setSelectedModelObject({})
-      //       setUploadedImages([])
-      //     } else {
-      //       openSnackbar(res.data.message, 'error');
-      //     }
-      //   })
-      //   .catch(err => {
-      //     console.log(err)
-      //     openSnackbar(err.response.data.message, 'error');
-      //   })
+      axios({
+        method: "POST",
+        url: '/api/add-products',
+        data: formData,
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+        .then(res => {
+          if (res.data.status === 'success') {
+            openSnackbar(res.data.message, 'success');
+            setIsClickedAddProduct(false)
+            fetchProductData()
+            setSelectedBrandObject({})
+            setSelectedModelObject({})
+            setUploadedImages([])
+          } else {
+            openSnackbar(res.data.message, 'error');
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          openSnackbar(err.response.data.message, 'error');
+        })
 
     }
 
@@ -426,8 +430,8 @@ const ProductList = () => {
   };
   // ----------------------------------------------Change status section Ends-----------------------------------------------------
 
-   // ----------------------------------------------Delete car brands section Starts-----------------------------------------------------
-   const deleteProduct = (data) => {
+  // ----------------------------------------------Delete car brands section Starts-----------------------------------------------------
+  const deleteProduct = (data) => {
     Swal.fire({
       title: "Delete",
       text: `Do you want to Delete this ${data.product_name}?`,
@@ -495,6 +499,9 @@ const ProductList = () => {
   const [selectedAttribute, setSelectedAttribute] = useState([])
   const [data, setData] = useState({});
 
+  console.log('selectedAttribute', selectedAttribute)
+  console.log('selectedProductAttribute', selectedProductAttribute)
+
   const handleProductChange = (event, value) => {
     setSelectedProductAttribute(value);
     setSelectedAttribute((prevData) => ({
@@ -550,6 +557,7 @@ const ProductList = () => {
 
     generate(0, []);
 
+    console.log('combinations', combinations)
     return combinations;
   };
 
@@ -575,6 +583,8 @@ const ProductList = () => {
   const combinations = generateCombinations(selectedAttribute.attributes);
 
   const fieldData = generateFieldData(combinations);
+
+  console.log('fieldData', fieldData)
 
   return (
     <>

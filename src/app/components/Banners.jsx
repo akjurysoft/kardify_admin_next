@@ -121,7 +121,11 @@ const Banners = () => {
 
   const fetchAttributeData = useCallback(
     () => {
-      axios.get('/api/fetch-all-attributes')
+      axios.get('/api/fetch-all-attributes',{
+        headers: {
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           if (res.data.status === 'success') {
             setAttributeData(res.data.attributes)

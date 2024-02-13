@@ -17,6 +17,7 @@ import Swal from 'sweetalert2'
 import { FaRegEye } from "react-icons/fa";
 import { CiCalendarDate, CiMail } from 'react-icons/ci';
 import { FiPhoneCall, FiPrinter } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -28,6 +29,8 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const Customers = () => {
+
+    const router = useRouter()
 
     const [open, setOpen] = React.useState(false);
 
@@ -49,23 +52,29 @@ const Customers = () => {
 
 
     // ----------------------------------------------Fetch Attribute section Starts-----------------------------------------------------
-    const [attributeData, setAttributeData] = useState([])
+    const [customerData, setCustomerData] = useState([])
 
     useEffect(() => {
         let unmounted = false;
         if (!unmounted) {
-            fetchAttributeData()
+            fetchCustomerData()
         }
 
         return () => { unmounted = true };
     }, [])
 
-    const fetchAttributeData = useCallback(
+    const fetchCustomerData = useCallback(
         () => {
-            axios.get('/api/fetch-all-attributes')
+            axios.get('/api/fetch-customers',{
+                headers:{
+                    Authorization: localStorage.getItem('kardifyAdminToken') 
+                }
+            })
                 .then((res) => {
                     if (res.data.status === 'success') {
-                        setAttributeData(res.data.attributes)
+                        setCustomerData(res.data.customers)
+                    } else if(res.data.message === 'Session expired'){
+                        router.push('/')
                     }
                 })
                 .then(err => {
@@ -79,7 +88,7 @@ const Customers = () => {
 
     const [page, setPage] = useState(1);
     const rowsPerPage = 5;
-    const totalRows = attributeData.length;
+    const totalRows = customerData.length;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
@@ -88,8 +97,8 @@ const Customers = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredRows = attributeData.filter((e) =>
-        e.attribute_name.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredRows = customerData.filter((e) =>
+        e.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
     const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
@@ -253,7 +262,7 @@ const Customers = () => {
                         <div className='flex items-center px-3 justify-between'>
                             <div className='flex space-x-2 items-center'>
                                 <span className='text-[18px] font-[500] text-[#101828]'>Customers List</span>
-                                <span className='px-[10px] py-[5px] bg-[#FCF8EE] rounded-[16px] text-[12px] text-[#A1853C]'>{attributeData.length} Customers</span>
+                                <span className='px-[10px] py-[5px] bg-[#FCF8EE] rounded-[16px] text-[12px] text-[#A1853C]'>{customerData.length} Customers</span>
                             </div>
                             <div className='flex items-center space-x-3 inputText w-[50%]'>
                                 <IoSearch className='text-[20px]' />
@@ -278,46 +287,47 @@ const Customers = () => {
                                             <TableCell style={{ minWidth: 150 }}>Customer ID</TableCell>
                                             <TableCell style={{ minWidth: 150 }}>Customer Name</TableCell>
                                             <TableCell style={{ minWidth: 100 }}>Gender</TableCell>
-                                            <TableCell style={{ minWidth: 150 }}>Customer info</TableCell>
-                                            <TableCell style={{ minWidth: 250 }}>Address</TableCell>
-                                            <TableCell style={{ minWidth: 150 }}>City</TableCell>
-                                            <TableCell style={{ minWidth: 100 }}>Pincode</TableCell>
+                                            <TableCell style={{ minWidth: 150 }}>Customer DOB</TableCell>
+                                            <TableCell style={{ minWidth: 200 }}>Customer Email</TableCell>
+                                            <TableCell style={{ minWidth: 150 }}>Customer Phone</TableCell>
+                                            {/* <TableCell style={{ minWidth: 150 }}>City</TableCell>
+                                            <TableCell style={{ minWidth: 100 }}>Pincode</TableCell> */}
                                             <TableCell style={{ minWidth: 50 }}>Delete</TableCell>
                                             <TableCell style={{ minWidth: 50 }}>View</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     {filteredRows.length > 0 ?
                                         <TableBody>
-                                            {paginatedRows.map((row) => (
+                                            {paginatedRows.map((row , i) => (
                                                 <TableRow key={row.id} >
-                                                    <TableCell>{row.id}</TableCell>
+                                                    <TableCell>{i+1}</TableCell>
                                                     <TableCell className='text-[#667085]'>
-                                                        546464
+                                                        {row.id}
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className='flex items-center space-x-2 text-[#667085]' >
-                                                            <Image src='/images/logo.svg' alt='installer' width={30} height={50} className='rounded-[50%] object-cover h-[40px] w-[40px]' />
-                                                            <span>Subham</span>
+                                                            {/* <Image src='/images/logo.svg' alt='installer' width={30} height={50} className='rounded-[50%] object-cover h-[40px] w-[40px]' /> */}
+                                                            <span>{row.fullname}</span>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className='text-[#667085]'>
                                                         Male
                                                     </TableCell>
+                                                    <TableCell className='text-[#667085]'>
+                                                        {row.dob || 'N/A'}
+                                                    </TableCell>
                                                     <TableCell>
-                                                        <div className='flex flex-col space-y-2 text-[#667085]'>
-                                                            <span className='text-[14px] font-[400]'>+ 91 97575 87868</span>
-                                                            <span className='text-[14px] font-[400]'>olivia@untitledui.com</span>
-                                                        </div>
+                                                           {row.email || 'N/A'}
                                                     </TableCell>
                                                     <TableCell className='text-[#667085]'>
-                                                        Mission Rd, Sampangi Rama Nagara, Bengaluru, Karnataka 560027
+                                                    {row.phone || 'N/A'}
                                                     </TableCell>
-                                                    <TableCell className='text-[#667085]'>
+                                                    {/* <TableCell className='text-[#667085]'>
                                                         Bengaluru
                                                     </TableCell>
                                                     <TableCell className='text-[#667085]'>
                                                         754029
-                                                    </TableCell>
+                                                    </TableCell> */}
                                                     <TableCell ><FaRegTrashAlt className='text-[20px] cursor-pointer text-slate-500' onClick={() => deleteCategory(row)} /></TableCell>
                                                     <TableCell><FaRegEye className='text-[20px] cursor-pointer text-slate-500' onClick={() => handleViewDetails(row)} /></TableCell>
                                                 </TableRow>
