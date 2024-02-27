@@ -77,7 +77,7 @@ const Customers = () => {
                         router.push('/')
                     }
                 })
-                .then(err => {
+                .catch(err => {
                     console.log(err)
                 })
         },
@@ -98,7 +98,7 @@ const Customers = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredRows = customerData.filter((e) =>
-        e.email.toLowerCase().includes(searchQuery.toLowerCase())
+        e.fullname.toLowerCase().includes(searchQuery.toLowerCase())
     );
     const paginatedRows = filteredRows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 

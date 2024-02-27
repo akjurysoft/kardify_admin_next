@@ -7,7 +7,7 @@ import Switch from '@mui/material/Switch';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Pagination } from '@mui/material';
 import Image from 'next/image';
 import Swal from 'sweetalert2'
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import axios from '../../../axios';
 
 

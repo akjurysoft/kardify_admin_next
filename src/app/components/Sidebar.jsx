@@ -30,6 +30,10 @@ import Customers from './Customers';
 import Dealers from './Dealers';
 import Subscribed from './Subscribed';
 import ProductBrands from './ProductBrands';
+import StaticPages from './StaticPages';
+import Stories from './Stories';
+import DynamicPages from './DynamicPages';
+import ProductReview from './ProductReview';
 
 const Sidebar = () => {
 
@@ -201,17 +205,17 @@ const Sidebar = () => {
                     </div>
                     <div className='flex flex-col space-y-2'>
                         <span className='text-[12px] text-[#7D672E]'>System Setting</span>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'static' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('static')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Static pages
-                            </Link>
+                            </div>
                         </li>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'dynamic' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('dynamic')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Dynamic pages
-                            </Link>
+                            </div>
                         </li>
                     </div>
                     <div className='flex flex-col space-y-2'>
@@ -234,17 +238,17 @@ const Sidebar = () => {
                                 Subscribed Customers
                             </div>
                         </li>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'stories' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('stories')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Customers Stories
-                            </Link>
-                        </li>
-                        <li className='hover:bg-[#cfaa4c]/60 hover:text-[#fff] p-[10px] rounded-[8px]'>
-                            <Link href="/category" className='flex items-center gap-[10px]'>
+                            </div>
+                        </li>  
+                        <li className={`leftMenuHover p-[10px] rounded-[8px] cursor-pointer ${activeComponent === 'review' ? 'activeLeftMenu' : ''}`} onClick={() => handleMenuItemClick('review')}>
+                            <div className='flex items-center gap-[10px]'>
                                 <Image src={banner} height={20} width={20} />
                                 Product Review
-                            </Link>
+                            </div>
                         </li>
                     </div>
                 </ul>
@@ -304,6 +308,14 @@ const Sidebar = () => {
             {activeComponent === 'dealer' && <Dealers />}
 
             {activeComponent === 'subscribed' && <Subscribed />}
+
+            {activeComponent === 'static' && <StaticPages />}
+
+            {activeComponent === 'stories' && <Stories />}
+
+            {activeComponent === 'dynamic' && <DynamicPages />}
+
+            {activeComponent === 'review' && <ProductReview />}
         </div>
     )
 }

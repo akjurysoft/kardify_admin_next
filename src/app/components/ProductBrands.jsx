@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Swal from 'sweetalert2'
 import { MdAdd } from "react-icons/md";
 import axios from '../../../axios';
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';

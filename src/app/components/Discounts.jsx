@@ -10,7 +10,7 @@ import { MdAdd } from 'react-icons/md';
 import axios from '../../../axios';
 import { getCategories, getProductBrands, getProducts, getSubCategories, getSuperSubCategories } from '../api';
 import { Autocomplete, Checkbox, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 
 const Discounts = () => {
   const { openSnackbar } = useSnackbar();

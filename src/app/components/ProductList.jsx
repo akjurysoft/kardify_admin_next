@@ -10,7 +10,7 @@ import Swal from 'sweetalert2'
 import { MdAdd } from "react-icons/md";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import axios from '../../../axios';
 import { Autocomplete, Checkbox, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { getCarBrands, getCategories, getProductAttributes, getProductBrands, getSubCategories, getSuperSubCategories } from '../api';
@@ -161,7 +161,7 @@ const ProductList = () => {
   const [getProductData, setGetProductData] = useState({
     product_name: '',
     product_desc: '',
-    product_brand: '',
+    product_brand_id: '',
     category_id: '',
     sub_category_id: '',
     super_sub_category_id: '',
@@ -183,6 +183,8 @@ const ProductList = () => {
     has_warranty: '',
     warranty: ''
   })
+
+  console.log('getProductData',getProductData)
 
   // product brand info section
   const [showSecondDiv, setShowSecondDiv] = useState(false);
@@ -274,7 +276,7 @@ const ProductList = () => {
       const formData = new FormData();
       formData.append('product_name', getProductData.product_name),
         formData.append('product_desc', getProductData.product_desc),
-        formData.append('product_brand', getProductData.product_brand),
+        formData.append('product_brand_id', getProductData.product_brand_id),
         formData.append('category_id', getProductData.category_id),
         formData.append('sub_category_id', getProductData.sub_category_id),
         formData.append('super_sub_category_id', getProductData.super_sub_category_id),
@@ -291,26 +293,15 @@ const ProductList = () => {
         formData.append('quantity', getProductData.quantity),
         formData.append('image_count', uploadedImages.length);
 
-
-      const combinationsData = fieldData && fieldData.map(combination => ({
-        combination: combination.combination,
-        price: data[`${combination.combination}_price`],
-        stock: data[`${combination.combination}_stock`]
-      }));
-
-
-      const combinationsDataString = JSON.stringify(combinationsData);
+      const combinationsDataString = JSON.stringify(addedAttributeData);
+      console.log('combinationsDataString', combinationsDataString)
       formData.append('combinations', combinationsDataString);
 
-    formData.append('combinations', JSON.stringify(combinationsData));
-    
-    
+
 
       images.forEach((image, index) => {
         formData.append(`image_${index + 1}`, image);
       });
-
-      console.log('Combinations:', JSON.parse(formData.get('combinations')));
 
       axios({
         method: "POST",
@@ -325,6 +316,7 @@ const ProductList = () => {
             openSnackbar(res.data.message, 'success');
             setIsClickedAddProduct(false)
             fetchProductData()
+            addedAttributeData([])
             setSelectedBrandObject({})
             setSelectedModelObject({})
             setUploadedImages([])
@@ -474,6 +466,8 @@ const ProductList = () => {
 
   const handleBack = () => {
     setIsClickedAddProduct(false)
+    setIsEditable(false)
+    setEditData({})
     setShowSecondDiv(false)
     setSelectedCarBrand('')
     setSelectedCarModel('')
@@ -484,6 +478,7 @@ const ProductList = () => {
 
 
   // ----------------------product attribute combination section ------------------------------------
+
   const [getAllProductAttribute, setGetAllProductAttribute] = useState([])
   const fetchProductAttribute = async () => {
     try {
@@ -498,6 +493,7 @@ const ProductList = () => {
   const [selectedProductAttribute, setSelectedProductAttribute] = useState([]);
   const [selectedAttribute, setSelectedAttribute] = useState([])
   const [data, setData] = useState({});
+  console.log('data', data)
 
   console.log('selectedAttribute', selectedAttribute)
   console.log('selectedProductAttribute', selectedProductAttribute)
@@ -526,6 +522,7 @@ const ProductList = () => {
       updatedAttributes[attributeIndex].attribute_options = value.split(',').map(option => option.trim());
       return { ...prevData, attributes: updatedAttributes };
     });
+    event.target.value = '';
   };
 
 
@@ -584,14 +581,173 @@ const ProductList = () => {
 
   const fieldData = generateFieldData(combinations);
 
-  console.log('fieldData', fieldData)
+  const addedAttributeData = fieldData.map(combination => {
+    const priceFieldName = `${combination.combination}_price`;
+    const stockFieldName = `${combination.combination}_stock`;
+
+    return {
+      combinations: combination.combination.split('-').map((attribute, index) => {
+        const attributeName = selectedAttribute.attributes.find(e => e.attribute_options.find(el => el == attribute))
+        if (!attributeName) {
+          return null;
+        }
+        const attributeId = selectedProductAttribute.find(e => e.attribute_name == attributeName.attribute_name)
+        return {
+          attribute_id: attributeId ? attributeId.id : null,
+          attribute_value: attribute
+        };
+      }),
+      combination_name: combination.combination,
+      price: data[priceFieldName],
+      stock: data[stockFieldName]
+    };
+  });
+
+  console.log('addedAttributeData', addedAttributeData);
+  // ---------------------------------2nd way---------------------------------
+
+  // const [getAllProductAttribute, setGetAllProductAttribute] = useState([])
+  // const fetchProductAttribute = async () => {
+  //   try {
+  //     const productAttributeData = await getProductAttributes();
+  //     setGetAllProductAttribute(productAttributeData.attributes);
+  //   } catch (error) {
+  //     console.error('Error fetching products:', error);
+  //   }
+  // };
+
+  // const filteredProducts = getAllProductAttribute.filter(product => product.status === 1);
+
+  // const [selectedAttributes, setSelectedAttributes] = useState([]);
+  // console.log('selectedAttributes', selectedAttributes)
+
+  // const setData = (data) => {
+  //   let attribute_values = []
+  //   for (const iterator of data) {
+  //     let combo = {}
+  //     for (const iterator2 of iterator) {
+  //       combo[Object.keys(iterator2)[0]] = iterator2[Object.keys(iterator2)[0]]
+  //     }
+  //     attribute_values.push({
+  //       ...combo,
+  //       price: null,
+  //       stock: null
+  //     })
+  //   }
+
+  //   setAttributeValues(attribute_values)
+  // }
+
+  // const handleProductChange = (event, newValue) => {
+  //   setSelectedAttributes(newValue);
+  //   generateCombinations(selectedAttributes);
+  // };
+
+  // const [attributeValues, setAttributeValues] = useState([]);
+  // console.log('attributeValues', attributeValues)
+
+  // const inputAttribute = (event, attrIndex) => {
+  //   const inputValue = event.target.value;
+  //   const commaAtEnd = inputValue[inputValue.length - 1];
+
+  //   if (commaAtEnd === ',') {
+  //     const newAttributeValue = inputValue.slice(0, -1);
+  //     const updatedAttributes = [...selectedAttributes];
+  //     if (!updatedAttributes[attrIndex].attributes) {
+  //       updatedAttributes[attrIndex].attributes = [];
+  //     }
+  //     updatedAttributes[attrIndex].attributes.push(newAttributeValue);
+  //     updatedAttributes[attrIndex].attribute = '';
+  //     setSelectedAttributes(updatedAttributes);
+  //     generateCombinations(updatedAttributes);
+  //   } else {
+  //     const updatedAttributes = [...selectedAttributes];
+  //     updatedAttributes[attrIndex].attribute = inputValue;
+  //     setSelectedAttributes(updatedAttributes);
+  //   }
+  // };
+
+  // const removeAttribute = (attributeIndex, dataIndex) => {
+  //   console.log("Removing attribute:", attributeIndex, dataIndex);
+  //   setSelectedAttributes(prevState => {
+  //     const updatedAttributes = [...prevState];
+  //     updatedAttributes[attributeIndex].attributes.splice(dataIndex, 1);
+  //     return updatedAttributes;
+  //   });
+  //   const updatedAttributeValues = attributeValues.map(attrValue => {
+  //     const attributeName = Object.keys(attrValue)[attributeIndex];
+  //     if (attrValue[attributeName] === selectedAttributes[attributeIndex].attributes[dataIndex]) {
+  //       return undefined; // Return undefined to remove this combination
+  //     }
+  //     return attrValue;
+  //   }).filter(Boolean); // Filter out undefined values
+
+  //   setAttributeValues(updatedAttributeValues);
+  // };
+
+  // const handlePriceChange = (event, index) => {
+  //   const newValue = event.target.value;
+  //   setAttributeValues(prevState => {
+  //     const updatedValues = [...prevState];
+  //     updatedValues[index].price = newValue;
+  //     return updatedValues;
+  //   });
+  // };
+
+  // const handleStockChange = (event, index) => {
+  //   const newValue = event.target.value;
+  //   setAttributeValues(prevState => {
+  //     const updatedValues = [...prevState];
+  //     updatedValues[index].stock = newValue;
+  //     return updatedValues;
+  //   });
+  // };
+
+  // const generateCombinations = (attributeObjects) => {
+  //   const result = [];
+
+  //   const generateCombinationsRecursive = (index, currentCombination) => {
+  //     if (index === attributeObjects.length) {
+  //       result.push([...currentCombination]);
+  //       return;
+  //     }
+
+  //     const currentObject = attributeObjects[index];
+
+  //     if (currentObject.attributes && currentObject.attributes.length > 0) {
+  //       for (const attributeValue of currentObject.attributes) {
+  //         currentCombination.push({ [currentObject.attribute_name]: attributeValue });
+  //         generateCombinationsRecursive(index + 1, currentCombination);
+  //         currentCombination.pop();
+  //       }
+  //     } else {
+  //       generateCombinationsRecursive(index + 1, currentCombination);
+  //     }
+  //   };
+
+  //   generateCombinationsRecursive(0, []);
+  //   setData(result);
+  // };
+
+
+
+  // ---------------------------Edit Product-------------------------------
+  const [editData, setEditData] = useState({})
+  const [isEditable, setIsEditable] = useState(false);
+  const handleEdit = (data) => {
+    setEditData(data)
+    setIsEditable(true)
+  }
+
+  console.log('editData', editData)
+
 
   return (
     <>
       <div className='px-[20px] py-[10px] space-y-5 container mx-auto w-[100%] overflow-y-scroll'>
-        {!isClickedAddProduct ?
-          <>
 
+        {!isClickedAddProduct && !isEditable && (
+          <>
             <div className=' py-[10px] flex flex-col space-y-5'>
               <div className='flex flex-col space-y-1'>
                 <span className='text-[30px] text-[#101828] font-[500]'>Product List</span>
@@ -692,7 +848,7 @@ const ProductList = () => {
                     {filteredRows.length > 0 ?
                       <TableBody>
                         {paginatedRows.map((row, i) => (
-                          <TableRow key={row.id} >
+                          <TableRow key={i} >
                             <TableCell>{i + 1}</TableCell>
                             <TableCell>{row.car_brand.brand_name || 'N/A'}</TableCell>
                             <TableCell>
@@ -754,7 +910,10 @@ const ProductList = () => {
               )}
             </div>
           </>
-          :
+        )}
+
+
+        {isClickedAddProduct && !isEditable ?
           <>
             <div className=' py-[10px] flex flex-col space-y-5'>
               <div className='flex flex-col space-y-1'>
@@ -776,7 +935,7 @@ const ProductList = () => {
                 </div>
                 <div className='flex flex-col space-y-1'>
                   <span className='text-[14px] text-[#344054] font-[500]'> Product Brand Name</span>
-                  <select className='!text-[14px]' name='category_id' onChange={getData}>
+                  <select className='!text-[14px]' name='product_brand_id' onChange={getData}>
                     <option >Choose Product Brand</option>
                     {productBrandData && productBrandData.filter(e => e.status).map((e, i) =>
                       <option key={i} value={e.id}>{e.brand_name}</option>
@@ -1038,45 +1197,427 @@ const ProductList = () => {
                     )}
                   />
                 </FormControl>
+                {selectedAttribute.attributes && Array.isArray(selectedAttribute.attributes) && selectedAttribute.attributes.map((attribute, attributeIndex) => (
+                  <>
+                    <div key={attributeIndex} className='flex items-end space-y-2 mt-2'>
+                      <span className='text-[14px] text-[#344054] font-[500] w-[20%]'>
+                        {attribute.attribute_name}
+                      </span>
 
-                {/* {selectedProductAttribute.map((attribute, index) => (
-                  <div key={index} className='flex items-center  space-y-2 mt-2'>
-                    <label htmlFor={`attribute-${attribute.attribute_name}`} className='text-[14px] text-[#344054] font-[500] w-[20%]'>
-                      {attribute.attribute_name}
-                    </label>
+                      <div className="flex-1">
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {attribute.attribute_options.map((option, optionIndex) => (
+                            <Chip
+                              key={`${attributeIndex}-${option}`}
+                              label={option}
+                              onDelete={() => handleDeleteOption(attributeIndex, option)}
+                              variant="outlined"
+                              sx={{
+                                backgroundColor: '#cfaa4d',
+                                color: 'white',
+                                borderColor: '#cfaa4d',
+                                '&:hover': {
+                                  backgroundColor: '#b9912d',
+                                  color: 'white',
+                                },
+                                '& .MuiChip-deleteIcon': {
+                                  color: 'white',
+                                  '&:hover': {
+                                    color: '#ffffffbf',
+                                  },
+                                },
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <FormControl fullWidth>
+                          <span className='text-[10px] font-[500]'>Note: Enter <span className='text-red-700'>coma ( , )</span> to create new {attribute.attribute_name}</span>
+                          <input
+                            placeholder={`Enter ${attribute.attribute_name}`}
+                            className='w-[100%] inputText focus-none outline-none !text-[14px] !text-[#354154]'
+                            value={attribute.attribute_options.join(', ')}
+                            // onChange={(event) => handleAttributeOptionChange(attributeIndex, event.target.value.split(',').map(option => option.trim()))}
+                            onChange={(event) => handleInputChange(event, attributeIndex)}
+                          />
+                        </FormControl>
+                      </div>
+                    </div>
+                  </>
+                ))}
+                {fieldData && fieldData.map((data) => (
+                  <div key={data.combination} className='flex items-end text-[#354154] font-[500] text-[14px] space-x-3'>
+                    {data.combination !== '' ?
+                      <>
+                        <h3 className='w-[30%] font-[600]'>{data.combination}</h3>
+                        {data.fields.map((field, index) => (
+                          <div key={index} className='flex flex-col w-[60%]'>
+                            <label>{field.label}</label>
+                            <input
+                              className='inputText outline-none focus-none !text-[14px]'
+                              placeholder={field.label === 'price' ? 'Enter Price' : field.label === 'stock' ? 'Enter Stock' : 'Enter Value'}
+                              type={field.type}
+                              name={field.name}
+                              value={data[field.name]}
+                              onChange={(e) => onChange(field.name, e.target.value)}
+                            />
+                          </div>
+                        ))}
+                      </>
+                      : <span className='text-center text-[12px] font-[500] w-full' >Choose Attributes For The Combination</span>}
+                  </div>
+                ))}
+
+                {/* ----------------2nd way--------------------------- */}
+                {/* {selectedAttributes.length > 0 && (
+                  <div className="flex flex-col items-left w-full">
+
+                    {selectedAttributes.map((attribute, attrIndex) => (
+                      <div key={attrIndex} className="flex items-center space-y-2 w-full selected_attribute_container">
+                        <div className="w-[30%]">
+                          <label className="input-label">{attribute.attribute_name} </label>
+                        </div>
+                        <div className='flex flex-wrap mb-2 gap-2 w-full'>
+                          {Array.isArray(attribute.attributes) && attribute.attributes.map((selectedData, dataIndex) => (
+                            <Chip
+                                key={dataIndex}
+                                label={selectedData}
+                                onDelete={() => removeAttribute(attrIndex, dataIndex)}
+                                color="primary"
+                                variant="outlined"
+                                sx={{
+                                backgroundColor: '#cfaa4d',
+                                color: 'white',
+                                borderColor: '#cfaa4d',
+                                '&:hover': {
+                                  backgroundColor: '#b9912d',
+                                  color: 'white',
+                                },
+                                '& .MuiChip-deleteIcon': {
+                                  color: 'white',
+                                  '&:hover': {
+                                    color: '#ffffffbf',
+                                  },
+                                },
+                              }}
+                              />
+                          ))}
+                          <input className="w-full inputText" placeholder={attribute.attribute_name} value={attribute.attribute} onChange={(event) => inputAttribute(event, attrIndex)} />
+                        </div>
+                      </div>
+                    ))}
+                    {attributeValues.length > 0 && (
+                      <div className="w-full">
+                        <div className="w-full">
+                          <label className="input-label">Combinations: </label>
+                        </div>
+                        {attributeValues.map((attributeValue, attrValIndex) => (
+                          <div key={attrValIndex} className="py-2 flex items-center">
+                            <span className='w-[30%]'>{Object.keys(attributeValue).filter(e => !['price', 'stock'].includes(e)).map(e => attributeValue[e]).join('-')}</span>
+                            <div className="flex gap-[20px] w-[70%]">
+                              <input className="w-full inputText" type="number" placeholder="Price" value={attributeValue.price} onChange={(event) => handlePriceChange(event, attrValIndex)} />
+                              <input className="w-full inputText" type="number" placeholder="Stock" value={attributeValue.stock} onChange={(event) => handleStockChange(event, attrValIndex)} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )} */}
+              </div>
+            </div>
+
+
+            <div className='flex items-center gap-[30px] justify-end'>
+              <span className='px-[38px] py-[10px] rounded-[8px] border border-[#D0D5DD] text-[16px] text-[#344054] font-[600] cursor-pointer' onClick={handleBack}>Reset</span>
+              <span className='px-[38px] py-[10px] rounded-[8px] text-[16px] text-[#fff] font-[600] bg-[#CFAA4C] hover:opacity-80 cursor-pointer' onClick={handleAddProduct}>Submit</span>
+            </div>
+          </>
+          : null}
+
+
+        {isEditable && (
+          <>
+            <div className=' py-[10px] flex flex-col space-y-5'>
+              <div className='flex flex-col space-y-1'>
+                <span className='text-[30px] text-[#101828] font-[500]'>Edit Product</span>
+                <span className='text-[#667085] font-[400] text-[16px]'>Introduce new items effortlessly with the Add New Product feature in the admin application for a dynamic and up-to-date online store.</span>
+              </div>
+            </div>
+
+            <div className='flex items-center justify-between gap-[30px]'>
+              <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Edit Product</span>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Product Name</span>
+                  <input type='text' className='outline-none focus-none inputText !text-[14px]' defaultValue={editData.product_name} placeholder='Add new product name' name='product_name' onChange={getData} />
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Description</span>
+                  <textarea className='outline-none focus-none inputText !text-[14px] h-[120px]' defaultValue={editData.product_desc} placeholder='Add product description' name='product_desc' onChange={getData} />
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'> Product Brand Name</span>
+                  <select className='!text-[14px]' name='edit_product_brand_id' defaultValue={editData.product_brand_id} onChange={getData}>
+                    <option >Choose Product Brand</option>
+                    {productBrandData && productBrandData.filter(e => e.status).map((e, i) =>
+                      <option key={i} value={e.id}>{e.brand_name}</option>
+                    )}
+                  </select>
+                </div>
+              </div>
+              <div className='flex flex-col border space-y-3 border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Category</span>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Select Main Category</span>
+                  <select className='!text-[14px]' name='category_id'  defaultValue={editData.category_id} onChange={getData}>
+                    <option>Choose Category</option>
+                    {categoryData && categoryData.filter(e => e.status).map((e, i) =>
+                      <option key={i} value={e.id}>{e.category_name}</option>
+                    )}
+                  </select>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Select Sub Category</span>
+                  <select className='!text-[14px]' name='sub_category_id' defaultValue={editData.sub_category_id} onChange={getData}>
+                    <option>Choose Sub Category</option>
+                    {subCategoryData && subCategoryData.filter(e => e.status).map((e, i) =>
+                      <option key={i} value={e.id}>{e.sub_category_name}</option>
+                    )}
+                  </select>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Select Super Sub Category</span>
+                  <select className='!text-[14px]' name='super_sub_category_id' defaultValue={editData.super_sub_category_id} onChange={getData}>
+                    <option>Choose Super Sub Category</option>
+                    {superSubCategoryData && superSubCategoryData.filter(e => e.status).map((e, i) =>
+                      <option key={i} value={e.id}>{e.super_sub_category_name}</option>
+                    )}
+                  </select>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Maximum Order Quantity</span>
+                  <input type='text' className='outline-none focus-none inputText !text-[14px]' defaultValue={editData.minimum_order} placeholder='Ex: 05' name='minimum_order' onChange={getData} />
+                </div>
+              </div>
+            </div>
+
+            <div className='flex items-center justify-between gap-[30px]'>
+              <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Product Image</span>
+                <div className="flex flex-col items-center justify-center text-[16px]">
+                  <div className="flex flex-col space-y-1 items-center border border-dashed border-gray-400 p-[10px] rounded-lg text-center w-full">
+                    <div className="text-[40px]">
+                      <FaCloudUploadAlt />
+                    </div>
+                    <header className="text-[10px] font-semibold">Drag & Drop to Upload File</header>
+                    <span className="mt-2 text-[10px] font-bold">OR</span>
+                    <button
+                      className=" text-[12px] text-[#A1853C] font-[600] rounded hover:text-[#A1853C]/60 transition duration-300"
+                      onClick={handleButtonClick}
+                    >
+                      Click to Upload
+                    </button>
                     <input
-                      type='text'
-                      id={`attribute-${attribute.attribute_name}`}
-                      name={`attribute-${attribute.attribute_name}`}
-                      className='outline-none focus-none inputText !text-[14px] w-[80%]'
-                      placeholder={`Enter ${attribute.attribute_name}`}
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      onChange={handleFileChange}
+                      multiple
                     />
                   </div>
-                ))} */}
-
-                {/* {selectedAttribute.attributes && Array.isArray(selectedAttribute.attributes) && selectedAttribute.attributes.map((attribute, attributeIndex) => (
-                  <div key={attributeIndex} className='flex flex-col items-start space-y-2 mt-2'>
-                    <span className='text-[14px] text-[#344054] font-[500]'>
-                      {attribute.attribute_name}
-                    </span>
-                    <FormControl fullWidth>
-                      <Autocomplete
-                        multiple
-                        options={attributeOptions[attribute.attribute_name] || []} // Provide options based on attribute name
-                        value={attribute.selectedOptions}
-                        onChange={(event, value) => handleAttributeOptionChange(attributeIndex, value)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            placeholder={`Select ${attribute.attribute_name}`}
-                          />
-                        )}
-                      />
-                    </FormControl>
+                  <div className="flex flex-wrap items-center mt-3">
+                    {uploadedImages.map((imageDataUrl, index) => (
+                      <div key={index} className="p-2 relative">
+                        <img src={imageDataUrl} alt={`Uploaded ${index + 1}`} className="max-w-[80px] max-h-[80px]" />
+                        <button
+                          className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                          onClick={() => handleImageRemove(index)}
+                        >
+                          <FaTimes className='text-[10px]' />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))} */}
+                </div>
+              </div>
+              <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Price Info</span>
+                <div className='flex items-center justify-between gap-[10px]'>
+                  <div className='flex flex-col space-y-1 w-full'>
+                    <span className='text-[14px] text-[#344054] font-[500]'>Default Unit Price</span>
+                    <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='Price of product (in rupees)' name='default_price' onChange={getData} />
+                  </div>
+                  <div className='flex flex-col space-y-1 w-full'>
+                    <span className='text-[14px] text-[#344054] font-[500]'>Product Stock</span>
+                    <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='stock' name='stock' onChange={getData} />
+                  </div>
+                </div>
+                <div className='flex items-center justify-between gap-[10px]'>
+                  <div className='flex flex-col space-y-1 w-full'>
+                    <span className='text-[14px] text-[#344054] font-[500]'>Discount Type</span>
+                    <select className='!text-[14px] outline-none focus-none' name='discount_type' onChange={getData}>
+                      <option value='0'>Select Discount Type</option>
+                      <option value='percent'>Percent</option>
+                      <option value='amount'>Amount</option>
+                    </select>
+                  </div>
+                  <div className='flex flex-col space-y-1 w-full'>
+                    <span className='text-[14px] text-[#344054] font-[500]'>Discount</span>
+                    <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='0' name='discount' onChange={getData} />
+                  </div>
+                </div>
+                <div className='flex items-center justify-between gap-[10px]'>
+                  <div className='flex flex-col space-y-1 w-full'>
+                    <span className='text-[14px] text-[#344054] font-[500]'>Tax Type</span>
+                    {/* <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='Add new product name' /> */}
+                    <select className='!text-[14px] outline-none focus-none' name='tax_type' onChange={getData}>
+                      <option value='0'>Select Tax Type</option>
+                      <option value='percent'>Percent</option>
+                      <option value='amount'>Amount</option>
+                    </select>
+                  </div>
+                  <div className='flex flex-col space-y-1 w-full'>
+                    <span className='text-[14px] text-[#344054] font-[500]'>Tax rate</span>
+                    <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='0' onChange={getData} name='tax_rate' />
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            <div className='flex items-end justify-between gap-[30px]'>
+              <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Product Brand Info</span>
+                <div className='flex flex-col space-y-1 w-full'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Product Type</span>
+                  <select className='!text-[14px] outline-none focus-none' onChange={handleProductTypeChange}>
+                    <option>Select Product Type</option>
+                    <option value='vehicle selection'>Vehicle Selection</option>
+                    <option value='general'>General</option>
+                  </select>
+                  <div className={`flex flex-col space-y-1 w-full ${showSecondDiv ? '' : 'hidden'}`}>
+                    <div className='flex items-end gap-[10px]'>
+                      <div className='flex flex-col space-y-1 w-full'>
+                        <span className='text-[14px] text-[#344054] font-[500]'>Car Brand</span>
+                        <select className='!text-[14px] outline-none focus-none w-[100%]' onChange={handleCarBrandChange}>
+                          <option>Select Brand Here</option>
+                          {carBrandsData && carBrandsData.map((e, i) =>
+                            <option key={i} value={e.id}>{e.brand_name}</option>
+                          )}
+                        </select>
+                      </div>
+                      {
+                        selectedBrandObject?.image_url &&
+                        <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${selectedBrandObject?.image_url}`} alt={selectedBrandObject?.brand_name || ''} width={70} height={50} className='rounded-[8px]' />
+                      }
+                    </div>
+                    <div className='flex items-end gap-[10px]'>
+                      <div className='flex flex-col space-y-1 w-full'>
+                        <span className='text-[14px] text-[#344054] font-[500]'>Car Model</span>
+                        <select className='!text-[14px] outline-none focus-none w-[100%]' onChange={handleCarModelChange}>
+                          <option>Select Car Model Here</option>
+                          {carModelsData && carModelsData.filter(e => e.status).map((e, i) =>
+                            <option key={i} value={e.id}>{e.model_name}</option>
+                          )}
+                        </select>
+                      </div>
+                      {
+                        selectedModelObject?.image_url &&
+                        <img src={selectedModelObject?.image_url ? `${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${selectedModelObject?.image_url}` : ''} alt={selectedModelObject?.model_name || ''} width={70} height={50} className='rounded-[8px]' />
+                      }
+                    </div>
+                    {/* <div className='flex items-end gap-[10px]'>
+                      <div className='flex flex-col space-y-1 w-full'>
+                        <span className='text-[14px] text-[#344054] font-[500]'>Start Year</span>
+                        <select className='!text-[14px] outline-none focus-none w-[100%]'>
+                          <option>Select Brand Here</option>
+                          <option>Audi</option>
+                          <option>BMW</option>
+                        </select>
+                      </div>
+                      <div className='flex flex-col space-y-1 w-full'>
+                        <span className='text-[14px] text-[#344054] font-[500]'>Last Year</span>
+                        <select className='!text-[14px] outline-none focus-none w-[100%]'>
+                          <option>Select Brand Here</option>
+                          <option>Audi</option>
+                          <option>BMW</option>
+                        </select>
+                      </div>
+                    </div> */}
+                  </div>
+                </div>
+              </div>
+              <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Exchange Policy</span>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Description</span>
+                  <textarea className='outline-none focus-none inputText !text-[14px] h-[190px]' placeholder='Add description' />
+                </div>
+                <div className='flex items-center gap-[20px] justify-between'>
+                  <span className='px-[18px] py-[10px] rounded-[8px] border border-[#D0D5DD] w-full text-center text-[16px] font-[600] bg-[#fff] cursor-pointer'>No</span>
+                  <span className='px-[18px] py-[10px] rounded-[8px] text-[#fff] w-full text-center text-[16px] font-[600] bg-[#CFAA4C] hover:opacity-80 cursor-pointer'>Yes, there is</span>
+                </div>
+              </div>
+            </div>
+
+            <div className='flex items-end justify-between gap-[30px]'>
+              <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Net Quantity and warranty info</span>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Net Quantity</span>
+                  <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='06' name='quantity' onChange={getData} />
+                </div>
+                <div className='flex items-end gap-[10px]'>
+                  <div className='flex flex-col space-y-1'>
+                    <span className='text-[14px] text-[#344054] font-[500]'>Warranty</span>
+                    <input type='text' className='outline-none focus-none inputText !text-[14px]' placeholder='06' />
+                  </div>
+                  <div className='flex items-center gap-[20px] justify-between w-full'>
+                    <span className='px-[10px] py-[10px] rounded-[8px] border border-[#D0D5DD] w-full text-center text-[16px] font-[600] bg-[#fff] cursor-pointer'>No</span>
+                    <span className='px-[10px] py-[10px] rounded-[8px] text-[#fff] w-full text-center text-[16px] font-[600] bg-[#CFAA4C] hover:opacity-80 cursor-pointer'>Yes, there is</span>
+                  </div>
+                </div>
+              </div>
+              <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+                <span className='text-[18px] font-[600]'>Cancellation Policy</span>
+                <div className='flex flex-col space-y-1'>
+                  <span className='text-[14px] text-[#344054] font-[500]'>Description</span>
+                  <textarea className='outline-none focus-none inputText !text-[14px] h-[190px]' placeholder='Add description' />
+                </div>
+                <div className='flex items-center gap-[20px] justify-between'>
+                  <span className='px-[18px] py-[10px] rounded-[8px] border border-[#D0D5DD] w-full text-center text-[16px] font-[600] bg-[#fff] cursor-pointer'>No</span>
+                  <span className='px-[18px] py-[10px] rounded-[8px] text-[#fff] w-full text-center text-[16px] font-[600] bg-[#CFAA4C] hover:opacity-80 cursor-pointer'>Yes, there is</span>
+                </div>
+              </div>
+            </div>
+
+            <div className='flex flex-col space-y-3 border border-[#D0D5DD] rounded-[16px] p-[16px] w-[100%]'>
+              <span className='text-[18px] font-[600]'>Attribute</span>
+              <div className='flex flex-col space-y-3 w-full'>
+                <span className='text-[14px] text-[#344054] font-[500]'>Attribute</span>
+                <FormControl fullWidth>
+                  <Autocomplete
+                    multiple
+
+                    options={filteredProducts}
+                    getOptionLabel={(option) => option.attribute_name}
+                    value={selectedProductAttribute}
+                    onChange={handleProductChange}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox color="primary" checked={selected} />
+                        {option.attribute_name}
+                      </li>
+                    )}
+                    style={{ width: '100%' }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Attributes"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                </FormControl>
                 {selectedAttribute.attributes && Array.isArray(selectedAttribute.attributes) && selectedAttribute.attributes.map((attribute, attributeIndex) => (
                   <>
                     <div key={attributeIndex} className='flex items-end space-y-2 mt-2'>
@@ -1154,9 +1695,8 @@ const ProductList = () => {
               <span className='px-[38px] py-[10px] rounded-[8px] border border-[#D0D5DD] text-[16px] text-[#344054] font-[600] cursor-pointer' onClick={handleBack}>Reset</span>
               <span className='px-[38px] py-[10px] rounded-[8px] text-[16px] text-[#fff] font-[600] bg-[#CFAA4C] hover:opacity-80 cursor-pointer' onClick={handleAddProduct}>Submit</span>
             </div>
-
           </>
-        }
+        )}
       </div>
     </>
   )

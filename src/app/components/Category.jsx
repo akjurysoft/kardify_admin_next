@@ -9,7 +9,7 @@ import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper
 import Image from 'next/image';
 import Swal from 'sweetalert2'
 import axios from '../../../axios';
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import { useRouter } from 'next/navigation';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';

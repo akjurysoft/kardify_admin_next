@@ -5,7 +5,7 @@ import { IoClose, IoSearch } from "react-icons/io5";
 import Image from 'next/image';
 import { FaEdit, FaRegTrashAlt } from 'react-icons/fa';
 import axios from '../../../axios';
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import Swal from 'sweetalert2'
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';

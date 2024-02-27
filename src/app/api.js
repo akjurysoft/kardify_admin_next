@@ -104,3 +104,51 @@ export const getProductAttributes = async () => {
         throw error;
     }
 };
+
+export const getAllCustomerData = async () => {
+    try {
+        const response = await axios.get('/api/fetch-customers',{
+            headers : {
+                Authorization : localStorage.getItem('kardifyAdminToken')
+            }
+        });
+        if(response.data.code === 200 && response.data.status === 'success'){
+            return response.data;
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+};
+
+export const getAllStoreData = async () => {
+    try {
+        const response = await axios.get('/api/fetch-all-store-info',{
+            headers : {
+                Authorization : localStorage.getItem('kardifyAdminToken')
+            }
+        });
+        if(response.data.code === 200 && response.data.status === 'success'){
+            return response.data;
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+};
+
+export const getAllTestimonialsData = async () => {
+    try {
+        const response = await axios.get('/api/fetch-all-testimonials',{
+            headers : {
+                Authorization : localStorage.getItem('kardifyAdminToken')
+            }
+        });
+        if(response.data.code === 200 && response.data.status === 'success'){
+            return response.data;
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+};

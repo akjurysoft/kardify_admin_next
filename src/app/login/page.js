@@ -2,7 +2,7 @@
 import axios from '../../../axios';
 import React, { useState } from 'react'
 import { FaRegEyeSlash } from "react-icons/fa";
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import { useRouter } from 'next/navigation';
 
 const Page = () => {

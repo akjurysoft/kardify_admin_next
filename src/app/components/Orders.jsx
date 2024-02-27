@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { IoSearch } from 'react-icons/io5'
 import { MdAdd } from 'react-icons/md'
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Pagination, Switch, MenuItem, RadioGroup, FormControl, FormControlLabel, Radio } from '@mui/material';
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import axios from '../../../axios';
 import Image from 'next/image';
 import { FaEdit, FaRegTrashAlt } from 'react-icons/fa';

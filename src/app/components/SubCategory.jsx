@@ -8,7 +8,7 @@ import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper
 import Image from 'next/image';
 import Swal from 'sweetalert2'
 import axios from '../../../axios';
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 import { useRouter } from 'next/navigation';
 
 import { styled } from '@mui/material/styles';
@@ -18,6 +18,18 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import Draggable from 'react-draggable';
+
+function PaperComponent(props) {
+  return (
+    <Draggable
+      handle="#draggable-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      <Paper {...props} />
+    </Draggable>
+  );
+}
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -557,11 +569,12 @@ const SubCategory = () => {
 
         <BootstrapDialog
           onClose={handleClose1}
-          aria-labelledby="customized-dialog-title"
+          aria-labelledby="draggable-dialog-title"
           open={open1}
           fullWidth
+          PaperComponent={PaperComponent}
         >
-          <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          <DialogTitle sx={{ m: 0, p: 2 }} id="draggable-dialog-title">
             Edit Sub Category
           </DialogTitle>
           <IconButton

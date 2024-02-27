@@ -18,7 +18,7 @@ import { FaRegEye } from "react-icons/fa";
 import { CiCalendarDate, CiMail } from 'react-icons/ci';
 import { FiPhoneCall, FiPrinter } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -71,14 +71,14 @@ const Dealers = () => {
             }
         })
             .then((res) => {
-                console.log(res.data)
                 if (res.data.status === 'success') {
                     setDealersData(res.data.dealers)
                 } else if (res.data.message === 'Session expired') {
-                    router.push('/')
+                    openSnackbar(res.data.message, 'error');
+                    router.push('/login')
                 }
             })
-            .then(err => {
+            .catch(err => {
                 console.log(err)
             })
     },
@@ -122,10 +122,10 @@ const Dealers = () => {
 
 
     // ----------------------------------------------Change status section Starts-----------------------------------------------------
-    const handleSwitchChange = (id) => {
+    const handleSwitchChange = (data) => {
         Swal.fire({
             title: "Status?",
-            text: `Do you want to change the status?`,
+            text: `Do you want to change the status to ${data.is_active == false ? 'Active' : 'Inactive'}?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#CFAA4C",
@@ -134,7 +134,7 @@ const Dealers = () => {
             confirmButtonText: "Yes! Change it"
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.post(`/api/active-inactive-dealer?dealer_id=${id}`, {}, {
+                axios.post(`/api/active-inactive-dealer?dealer_id=${data.id}`, {}, {
                     headers: {
                         Authorization: localStorage.getItem('kardifyAdminToken')
                     }
@@ -268,7 +268,7 @@ const Dealers = () => {
                             </div>
                             <div className={`px-[24px] py-[12px] rounded-[8px]  text-[14px] cursor-pointer ${activeTab === 'rejected' ? 'bg-[#CFAA4C] text-[#fff]' : 'bg-[#f9fafb]'}`} onClick={() => handleTabChange('rejected')}>
                                 <div className='flex justify-between items-center'>
-                                    <span>Rejected Approval</span>
+                                    <span>Rejected Dealer</span>
                                     <span>{rejectData.length}</span>
                                 </div>
                             </div>
@@ -367,7 +367,7 @@ const Dealers = () => {
                                                             <TableCell className='text-[#667085]'>
                                                                 <Switch
                                                                     checked={row.is_active}
-                                                                    onChange={() => handleSwitchChange(row.id)}
+                                                                    onChange={() => handleSwitchChange(row)}
                                                                     inputProps={{ 'aria-label': 'controlled' }}
                                                                     sx={{
                                                                         '& .MuiSwitch-thumb': {

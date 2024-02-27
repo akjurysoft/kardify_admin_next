@@ -9,7 +9,7 @@ import { FaEdit } from "react-icons/fa";
 import { MdAdd } from 'react-icons/md';
 import axios from '../../../axios';
 import Swal from 'sweetalert2'
-import { useSnackbar } from '../snackbarProvider';
+import { useSnackbar } from '../SnackbarProvider';
 
 const Coupons = () => {
   const { openSnackbar } = useSnackbar();
