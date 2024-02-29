@@ -3,7 +3,11 @@ import axios from "../../axios";
 
 export const getProducts = async () => {
     try {
-        const response = await axios.get('/api/get-products');
+        const response = await axios.get('/api/get-products',{
+            headers : {
+                Authorization : localStorage.getItem('kardifyAdminToken')
+            }
+        });
         if(response.data.status === 'success'){
             return response.data;
         }

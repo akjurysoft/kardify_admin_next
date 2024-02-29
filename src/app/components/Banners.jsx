@@ -65,41 +65,81 @@ const Banners = () => {
 
 
 
-  // Image upload function
-  const fileInputRef = useRef(null);
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [images, setImages] = useState([]);
-
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
+  const fileInputRefWebsite = useRef(null);
+  const fileInputRefMobile = useRef(null);
+  const [uploadedImagesWebsite, setUploadedImagesWebsite] = useState([]);
+  console.log('uploadedImagesWebsite', uploadedImagesWebsite)
+  const [imagesWebsite, setImagesWebsite] = useState([]);
+  const [uploadedImagesMobile, setUploadedImagesMobile] = useState([]);
+  console.log('uploadedImagesMobile', uploadedImagesMobile)
+  const [imagesMobile, setImagesMobile] = useState([]);
+  
+  const handleButtonClickWebsite = () => {
+    fileInputRefWebsite.current.click();
   };
-
-  const handleFileChange = (e) => {
+  
+  const handleButtonClickMobile = () => {
+    fileInputRefMobile.current.click();
+  };
+  
+  const handleFileChangeWebsite = (e) => {
     const selectedFiles = e.target.files;
     const newImages = [];
-
+  
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       const reader = new FileReader();
-
+  
       reader.onload = (e) => {
         newImages.push(file);
-        setUploadedImages((prevImages) => [...prevImages, e.target.result]);
-        setImages(newImages);
-      };
+        setUploadedImagesWebsite((prevImages) => [...prevImages, e.target.result]);
+        setImagesWebsite(newImages);
 
+        e.target.value = null;
+      };
+  
       reader.readAsDataURL(file);
     }
   };
+  
+  const handleFileChangeMobile = (e) => {
+    const selectedFiles = e.target.files;
+    const newImages = [];
+  
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const reader = new FileReader();
+  
+      reader.onload = (e) => {
+        newImages.push(file);
+        setUploadedImagesMobile((prevImages) => [...prevImages, e.target.result]);
+        setImagesMobile(newImages);
 
-  const handleImageRemove = (index) => {
-    const newImages = [...images];
+        e.target.value = null;
+      };
+  
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const handleImageRemoveWebsite = (index) => {
+    const newImages = [...imagesWebsite];
     newImages.splice(index, 1);
-    setImages(newImages);
-
-    const newUploadedImages = [...uploadedImages];
+    setImagesWebsite(newImages);
+  
+    const newUploadedImages = [...uploadedImagesWebsite];
     newUploadedImages.splice(index, 1);
-    setUploadedImages(newUploadedImages);
+    setUploadedImagesWebsite(newUploadedImages);
+  };
+  
+  const handleImageRemoveMobile = (index) => {
+    const newImages = [...imagesMobile];
+    newImages.splice(index, 1);
+    setImagesMobile(newImages);
+  
+    const newUploadedImages = [...uploadedImagesMobile];
+    newUploadedImages.splice(index, 1);
+    setUploadedImagesMobile(newUploadedImages);
   };
 
 
@@ -264,25 +304,25 @@ const Banners = () => {
                   <span className="mt-2 text-[10px] font-bold">OR</span>
                   <button
                     className=" text-[12px] text-[#A1853C] font-[600] rounded hover:text-[#A1853C]/60 transition duration-300"
-                    onClick={handleButtonClick}
+                    onClick={handleButtonClickWebsite}
                   >
                     Click to Upload
                   </button>
                   <input
                     type="file"
-                    ref={fileInputRef}
+                    ref={fileInputRefWebsite}
                     className="hidden"
-                    onChange={handleFileChange}
+                    onChange={handleFileChangeWebsite}
                     accept='image/*'
                   />
                 </div>
                 <div className="flex flex-wrap items-center mt-3">
-                  {uploadedImages.map((imageDataUrl, index) => (
+                  {uploadedImagesWebsite.map((imageDataUrl, index) => (
                     <div key={index} className="p-2 relative">
                       <img src={imageDataUrl} alt={`Uploaded ${index + 1}`} className="max-w-[80px] max-h-[80px]" />
                       <button
                         className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                        onClick={() => handleImageRemove(index)}
+                        onClick={() => handleImageRemoveWebsite(index)}
                       >
                         <FaTimes className='text-[10px]' />
                       </button>
@@ -302,25 +342,25 @@ const Banners = () => {
                   <span className="mt-2 text-[10px] font-bold">OR</span>
                   <button
                     className=" text-[12px] text-[#A1853C] font-[600] rounded hover:text-[#A1853C]/60 transition duration-300"
-                    onClick={handleButtonClick}
+                    onClick={handleButtonClickMobile}
                   >
                     Click to Upload
                   </button>
                   <input
                     type="file"
-                    ref={fileInputRef}
+                    ref={fileInputRefMobile}
                     className="hidden"
-                    onChange={handleFileChange}
+                    onChange={handleFileChangeMobile}
                     accept='image/*'
                   />
                 </div>
                 <div className="flex flex-wrap items-center mt-3">
-                  {uploadedImages.map((imageDataUrl, index) => (
+                  {uploadedImagesMobile.map((imageDataUrl, index) => (
                     <div key={index} className="p-2 relative">
                       <img src={imageDataUrl} alt={`Uploaded ${index + 1}`} className="max-w-[80px] max-h-[80px]" />
                       <button
                         className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                        onClick={() => handleImageRemove(index)}
+                        onClick={() => handleImageRemoveMobile(index)}
                       >
                         <FaTimes className='text-[10px]' />
                       </button>
