@@ -498,12 +498,12 @@ const DynamicPages = () => {
                                                                     <TableRow key={i} >
                                                                         <TableCell>{i + 1}</TableCell>
                                                                         <TableCell>
-                                                                            {row.customer.fullname}
+                                                                            {row.customer.fullname || 'N/A'}
                                                                         </TableCell>
                                                                         <TableCell>
                                                                             <div className='flex flex-col space-y-2 text-[#667085]'>
-                                                                                <span className='text-[14px] font-[400]'>{row.customer.phone}</span>
-                                                                                <span className='text-[14px] font-[400]'>{row.customer.email}</span>
+                                                                                <span className='text-[14px] font-[400]'>{row.customer.phone || 'N/A'}</span>
+                                                                                <span className='text-[14px] font-[400]'>{row.customer.email || 'N/A'}</span>
                                                                             </div>
                                                                         </TableCell>
                                                                         <TableCell>
