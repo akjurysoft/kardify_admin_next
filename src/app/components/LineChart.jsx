@@ -11,7 +11,6 @@ const data = [
 ];
 
 const LineChart1 = ({ getCustomerData }) => {
-    console.log('getCustomerData', getCustomerData)
     return (
         <div className='w-[100%] flex justify-center bg-[#f7f9fb] rounded-[20px]'>
             {/* <LineChart width={500} height={400} data={data} className='rounded-[15px] bg-[#f7f9fb] p-[15px]'>

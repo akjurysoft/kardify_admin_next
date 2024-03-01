@@ -1,6 +1,8 @@
 import axios from "../../axios";
 
 
+
+
 export const getProducts = async () => {
     try {
         const response = await axios.get('/api/get-products',{
@@ -8,7 +10,7 @@ export const getProducts = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.status === 'success'){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -24,7 +26,7 @@ export const getCategories = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.code === 200){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -40,7 +42,7 @@ export const getSubCategories = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.code === 200){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -56,7 +58,7 @@ export const getSuperSubCategories = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.code === 200){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -72,7 +74,7 @@ export const getProductBrands = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.status === 'success'){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -84,7 +86,7 @@ export const getProductBrands = async () => {
 export const getCarBrands = async () => {
     try {
         const response = await axios.get('/api/fetch-car-brands');
-        if(response.data.status === 'success'){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -100,7 +102,7 @@ export const getProductAttributes = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.code === 200){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -116,7 +118,7 @@ export const getAllCustomerData = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.code === 200 && response.data.status === 'success'){
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {
@@ -132,7 +134,7 @@ export const getAllStoreData = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.code === 200 && response.data.status === 'success'){
+        if(response.data.code === 200){
             return response.data;
         }
     } catch (error) {
@@ -148,7 +150,23 @@ export const getAllTestimonialsData = async () => {
                 Authorization : localStorage.getItem('kardifyAdminToken')
             }
         });
-        if(response.data.code === 200 && response.data.status === 'success'){
+        if(response.status === 200){
+            return response.data;
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+};
+
+export const getAllBannerData = async () => {
+    try {
+        const response = await axios.get('/api/get-banners-admin',{
+            headers : {
+                Authorization : localStorage.getItem('kardifyAdminToken')
+            }
+        });
+        if(response.status === 200){
             return response.data;
         }
     } catch (error) {

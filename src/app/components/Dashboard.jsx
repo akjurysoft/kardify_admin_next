@@ -68,6 +68,8 @@ const Dashboard = () => {
                     if (res.data.status === 'success') {
                         setAllOrdersData(res.data.orders)
                         generateStatusColors(res.data.orders.map(order => order.order_status.status_name));
+                    } else if (res.data.message === 'Session expired') {
+                        router.push('/login')
                     }
                 })
                 .then(err => {
