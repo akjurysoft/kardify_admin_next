@@ -141,7 +141,11 @@ const ProductList = () => {
 
   const fetchProductData = useCallback(
     () => {
-      axios.get("/api/get-products")
+      axios.get("/api/get-products",{
+        headers:{
+          Authorization: localStorage.getItem('kardifyAdminToken')
+        }
+      })
         .then((res) => {
           if (res.data.status === 'success') {
             setProductData(res.data.products)
@@ -308,7 +312,8 @@ const ProductList = () => {
         url: '/api/add-products',
         data: formData,
         headers: {
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "multipart/form-data",
+          Authorization: localStorage.getItem('kardifyAdminToken')
         }
       })
         .then(res => {
